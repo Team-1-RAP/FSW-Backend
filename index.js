@@ -1,27 +1,19 @@
 import express from 'express';
-import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
 import cors from 'cors';
-import morgan from 'morgan';
-import db from './models/index.js'; 
+import accountRoutes from './routes/account.js';
+
+dotenv.config();
 
 const app = express();
+
+app.use(express.json());
+
 app.use(cors());
-app.use(bodyParser.json());
-app.use(morgan('dev'));
 
-db.sequelize.authenticate()
-  .then(() => {
-    console.log('Connection has been established successfully.');
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
-  });
+app.use(accountRoutes);
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
