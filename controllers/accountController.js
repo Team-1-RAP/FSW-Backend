@@ -1,5 +1,6 @@
 import Account from "../models/account.js";
 import FlagUser from '../models/flagUser.js';
+import Customer from '../models/customer.js';
 import { Op, Sequelize } from 'sequelize';
 
 export const getAccounts = async (req, res) => {
@@ -47,6 +48,55 @@ export const validateCard = async (req, res) => {
         }
     } catch (error) {
         console.error('Error during card validation:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const validateBirthDate = async (req, res) => {
+    const { account_no, born_date } = req.body;
+
+    try {
+        const account = await Account.findOne({
+            where: { no: account_no }
+        });
+
+        if (!account) {
+            return res.status(400).json({ message: 'Account not found' });
+        }
+
+        const flagUser = await FlagUser.findOne({
+            where: { customer_id: account.userId }
+        });
+
+        if (!flagUser || flagUser.is_card_valid !== true) {
+            return res.status(400).json({ message: 'Card validation not completed or failed' });
+        }
+
+        const bornDate = new Date(born_date);
+
+        const customer = await Customer.findOne({
+            where: {
+                id: account.userId,
+                bornDate: bornDate,
+                bornDate: { [Op.not]: null }
+            }
+        });
+
+        if (customer) {
+            await FlagUser.update(
+                { is_birth_valid: true, updated_at: new Date() },
+                { where: { customer_id: account.userId } }
+            );
+            return res.status(200).json({ message: 'Birth date validation successful', account_no: account.no, step: 2 });
+        } else {
+            await FlagUser.update(
+                { is_birth_valid: false, updated_at: new Date() },
+                { where: { customer_id: account.userId } }
+            );
+            return res.status(400).json({ message: 'Birth date validation failed' });
+        }
+    } catch (error) {
+        console.error('Error during birth date validation:', error);
         return res.status(500).json({ error: error.message });
     }
 };

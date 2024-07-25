@@ -110,6 +110,7 @@ const Customer = sequelize.define('customer', {
     }
 }, {
     tableName: 'customer',
+    timestamps: false,
 });
 
 Customer.belongsToMany(Role, {through: 'oauth_user_role', foreignKey: 'user_id'});
