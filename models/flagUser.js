@@ -43,6 +43,18 @@ const FlagUser = sequelize.define('flag_user', {
     account_no: {
         type: DataTypes.STRING(255),
         allowNull: true
+    },
+    otp: {
+        type: DataTypes.STRING(6),
+        allowNull: true,
+    },
+    otp_expired_date: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    is_verified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
     }
 }, {
     tableName: 'flag_user',

@@ -4,6 +4,10 @@ import Customer from '../models/customer.js';
 import { Op, Sequelize } from 'sequelize';
 import { sendOTPEmail } from "../utils/emailUtils.js";
 
+const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 export const getAccounts = async (req, res) => {
     try {
         const accounts = await Account.findAll();
@@ -122,17 +126,29 @@ export const validateEmail = async (req, res) => {
 
         if (customer) {
             const otp = generateOTP();
-            await sendOTPEmail(email, otp); 
+            const otpExpiry = new Date(Date.now() + 10 * 60 * 1000).toISOString(); 
+
+            await sendOTPEmail(email, otp);
 
             await FlagUser.update(
-                { otp: otp, otp_created_at: new Date(), updated_at: new Date() },
+                {
+                    is_email_valid: true,
+                    otp: otp,
+                    otp_expired_date: otpExpiry,
+                    updated_at: new Date().toISOString() 
+                },
                 { where: { customer_id: account.userId } }
             );
-            return res.status(200).json({ message: 'Email validation successful. Check your email for OTP code', account_no: account.no, step: 3 });
-            
+
+            return res.status(200).json({
+                message: 'Email validation successful. Check your email for OTP code',
+                account_no: account.no,
+                step: 3
+            });
+
         } else {
             await FlagUser.update(
-                { is_email_valid: false, updated_at: new Date() },
+                { is_email_valid: false, updated_at: new Date().toISOString() },
                 { where: { customer_id: account.userId } }
             );
             return res.status(400).json({ message: 'Email validation failed' });
@@ -143,6 +159,39 @@ export const validateEmail = async (req, res) => {
     }
 };
 
-const generateOTP = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+export const verifyOtp = async (req, res) => {
+    const { account_no, otp } = req.body;
+
+    try {
+        const account = await Account.findOne({ where: { no: account_no } });
+
+        if (!account) {
+            return res.status(400).json({ message: 'Account not found' });
+        }
+
+        const flagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+
+        if (!flagUser) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+
+        const currentDateTime = new Date().toISOString(); 
+
+        if (flagUser.otp === otp && new Date(flagUser.otp_expired_date) > new Date(currentDateTime)) {
+            await FlagUser.update(
+                { 
+                    is_email_valid: true, 
+                    is_verified: true,
+                    updated_at: new Date().toISOString() 
+                },
+                { where: { customer_id: account.userId } }
+            );
+            return res.status(200).json({ message: 'OTP verification successful' });
+        } else {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+    } catch (error) {
+        console.error('Error during OTP verification:', error);
+        return res.status(500).json({ error: error.message });
+    }
 };
