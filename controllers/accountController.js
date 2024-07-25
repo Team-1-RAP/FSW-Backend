@@ -2,6 +2,7 @@ import Account from "../models/account.js";
 import FlagUser from '../models/flagUser.js';
 import Customer from '../models/customer.js';
 import { Op, Sequelize } from 'sequelize';
+import { sendOTPEmail } from "../utils/emailUtils.js";
 
 export const getAccounts = async (req, res) => {
     try {
@@ -99,4 +100,49 @@ export const validateBirthDate = async (req, res) => {
         console.error('Error during birth date validation:', error);
         return res.status(500).json({ error: error.message });
     }
+};
+
+export const validateEmail = async (req, res) => {
+    const { account_no, email } = req.body;
+
+    try {
+        const account = await Account.findOne({ where: { no: account_no } });
+
+        if (!account) {
+            return res.status(400).json({ message: 'Account not found' });
+        }
+
+        const flagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+
+        if (!flagUser || flagUser.is_birth_valid !== true) {
+            return res.status(400).json({ message: 'Birth date validation not completed or failed' });
+        }
+
+        const customer = await Customer.findOne({ where: { id: account.userId, email: email } });
+
+        if (customer) {
+            const otp = generateOTP();
+            await sendOTPEmail(email, otp); 
+
+            await FlagUser.update(
+                { otp: otp, otp_created_at: new Date(), updated_at: new Date() },
+                { where: { customer_id: account.userId } }
+            );
+            return res.status(200).json({ message: 'Email validation successful. Check your email for OTP code', account_no: account.no, step: 3 });
+            
+        } else {
+            await FlagUser.update(
+                { is_email_valid: false, updated_at: new Date() },
+                { where: { customer_id: account.userId } }
+            );
+            return res.status(400).json({ message: 'Email validation failed' });
+        }
+    } catch (error) {
+        console.error('Error during email validation:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
 };
