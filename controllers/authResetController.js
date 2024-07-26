@@ -160,6 +160,7 @@ export const validatePin = async (req, res) => {
                     is_birth_valid: flagUser.is_birth_valid,
                     is_email_valid: flagUser.is_email_valid,
                     is_verified: flagUser.is_verified,
+                    is_new_password: flagUser.is_new_password,
                     otp_code: flagUser.otp,
                     otp_expired_date: flagUser.otp_expired_date,
                     updated_at: flagUser.updated_at

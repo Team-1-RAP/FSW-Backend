@@ -113,32 +113,12 @@ const router = express.Router();
  *             $ref: '#/components/schemas/CardValidation'
  *     responses:
  *       200:
- *         description: Card validation successful
+ *         description: OK
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
- *                   type: string
- *       400:
- *         description: Invalid card number or other validation errors
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
  */
 
 /**

@@ -3,6 +3,7 @@ import FlagUser from '../models/flagUser.js';
 import Customer from '../models/customer.js';
 import { Op, Sequelize } from 'sequelize';
 import { sendOTPEmail } from "../utils/emailUtils.js";
+import { formatToJakartaTime } from "../utils/dateUtils.js";
 
 const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -22,6 +23,14 @@ export const validateCard = async (req, res) => {
     const { cardNumber, expMonth, expYear } = req.body;
 
     try {
+        if(!expMonth || !expYear || !cardNumber){
+            return res.status(400).json({
+                code: 400,
+                message: 'Expired month, year and card number needed',
+                data: null
+            });
+        }
+        
         const account = await Account.findOne({
             where: {
                 atm_card_no: cardNumber,
@@ -37,6 +46,7 @@ export const validateCard = async (req, res) => {
                 where: { customer_id: account.userId },
                 defaults: {
                     is_card_valid: true,
+                    updated_at: new Date(),
                     account_no: account.no
                 }
             });
@@ -47,6 +57,10 @@ export const validateCard = async (req, res) => {
                     account_no: account.no
                 });
             }
+
+            const updateAtDB = flagUser.updated_at;
+            const updatedAtFormatted = formatToJakartaTime(updateAtDB);
+
             return res.status(200).json({
                 code: 200,
                 message: 'Card validation success',
@@ -58,9 +72,13 @@ export const validateCard = async (req, res) => {
                     exp_date: account.expDate,
                     flag_user: {
                         is_card_valid: flagUser.is_card_valid,
-                        updated_at: flagUser.updated_at
+                        is_birth_valid: flagUser.is_birth_valid,
+                        is_email_valid: flagUser.is_email_valid,
+                        is_verified: flagUser.is_verified,
+                        is_new_password: flagUser.is_new_password,
+                        updated_at: updatedAtFormatted
                     },
-                    stepValidation: 2,
+                    stepValidation: 1,
                     created_date: account.createdDate
                 }
             });
@@ -90,8 +108,8 @@ export const validateBirthDate = async (req, res) => {
         });
 
         if (!account) {
-            return res.status(400).json({
-                code: 400,
+            return res.status(404).json({
+                code: 404,
                 message: 'Account not found',
                 data: null
             });
@@ -128,6 +146,9 @@ export const validateBirthDate = async (req, res) => {
             }
         });
 
+        const updateAtDB = flagUser.updated_at;
+        const updatedAtFormatted = formatToJakartaTime(updateAtDB);
+
         if (customer) {
             await FlagUser.update(
                 { is_birth_valid: true, updated_at: new Date() },
@@ -150,8 +171,11 @@ export const validateBirthDate = async (req, res) => {
                     flag_user: {
                         is_card_valid: flagUser.is_card_valid,
                         is_birth_valid: flagUser.is_birth_valid,
-                        updated_at: flagUser.updated_at
-                    }
+                        is_email_valid: flagUser.is_email_valid,
+                        is_verified: flagUser.is_verified,
+                        is_new_password: flagUser.is_new_password,
+                        updated_at: updatedAtFormatted
+                    },
                 },
                 stepValidation: 2,
                 created_date: account.createdDate
