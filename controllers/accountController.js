@@ -304,6 +304,7 @@ export const verifyOtp = async (req, res) => {
                         is_card_valid: flagUser.is_card_valid,
                         is_birth_valid: flagUser.is_birth_valid,
                         is_email_valid: flagUser.is_email_valid,
+                        is_verified: flagUser.is_verified,
                         otp_code: flagUser.otp,
                         otp_expired_date: flagUser.otp_expired_date,
                         updated_at: flagUser.updated_at
