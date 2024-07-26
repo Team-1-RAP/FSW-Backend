@@ -69,7 +69,11 @@ export const validatePin = async (req, res) => {
         }
 
         await Customer.update(
-            { password: flagUser.temp_password },
+            { 
+                password: flagUser.temp_password,
+                login_attemps: 0,
+                not_locked: true
+             },
             { where: { id: flagUser.customer_id } }
         );
 
