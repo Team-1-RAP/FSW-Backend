@@ -47,13 +47,37 @@ export const validateCard = async (req, res) => {
                     account_no: account.no
                 });
             }
-            return res.status(200).json({ message: 'Card validation successful', account_no: account.no, step: 1 });
+            return res.status(200).json({
+                code: 200,
+                message: 'Card validation success',
+                data: {
+                    atm_card_no: account.cardNumber,
+                    account_no: account.no,
+                    account_type: account.accountType,
+                    balance: account.balance,
+                    exp_date: account.expDate,
+                    flag_user: {
+                        is_card_valid: flagUser.is_card_valid,
+                        updated_at: flagUser.updated_at
+                    },
+                    stepValidation: 2,
+                    created_date: account.createdDate
+                }
+            });
         } else {
-            return res.status(400).json({ message: 'Card validation failed' });
+            return res.status(400).json({
+                code: 400,
+                message: 'Card validation failed',
+                data: null
+            });
         }
     } catch (error) {
         console.error('Error during card validation:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+            data: null
+        });
     }
 };
 
@@ -66,7 +90,11 @@ export const validateBirthDate = async (req, res) => {
         });
 
         if (!account) {
-            return res.status(400).json({ message: 'Account not found' });
+            return res.status(400).json({
+                code: 400,
+                message: 'Account not found',
+                data: null
+            });
         }
 
         const flagUser = await FlagUser.findOne({
@@ -74,7 +102,20 @@ export const validateBirthDate = async (req, res) => {
         });
 
         if (!flagUser || flagUser.is_card_valid !== true) {
-            return res.status(400).json({ message: 'Card validation not completed or failed' });
+            return res.status(400).json({
+                code: 400,
+                message: 'Card validation not completed or failed',
+                data: null
+            });
+        }
+
+        const customercheck = await Customer.findOne({ where: {id: account.userId }})
+        if (customercheck.bornDate !== born_date){
+            return res.status(400).json({
+                code: 400,
+                message: 'Birth date validation failed or does not match with account data',
+                data: null
+            });
         }
 
         const bornDate = new Date(born_date);
@@ -92,17 +133,47 @@ export const validateBirthDate = async (req, res) => {
                 { is_birth_valid: true, updated_at: new Date() },
                 { where: { customer_id: account.userId } }
             );
-            return res.status(200).json({ message: 'Birth date validation successful', account_no: account.no, step: 2 });
+            return res.status(200).json({
+                code: 200,
+                message: 'Birth date validation success',
+                data: {
+                    account_no: account.no,
+                    customer_id: customer.id,
+                    account_type: account.accountType,
+                    balance: account.balance,
+                    customer_data: {
+                        username: customer.username,
+                        fullname: customer.fullname,
+                        email: customer.email,
+                        born_date: customer.bornDate,
+                    },
+                    flag_user: {
+                        is_card_valid: flagUser.is_card_valid,
+                        is_birth_valid: flagUser.is_birth_valid,
+                        updated_at: flagUser.updated_at
+                    }
+                },
+                stepValidation: 2,
+                created_date: account.createdDate
+            });
         } else {
             await FlagUser.update(
                 { is_birth_valid: false, updated_at: new Date() },
                 { where: { customer_id: account.userId } }
             );
-            return res.status(400).json({ message: 'Birth date validation failed' });
+            return res.status(400).json({
+                code: 400,
+                message: 'Birth date validation failed',
+                data: null
+            });
         }
     } catch (error) {
         console.error('Error during birth date validation:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+            data: null
+        });
     }
 };
 
