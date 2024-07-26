@@ -271,10 +271,10 @@ export const verifyOtp = async (req, res) => {
 
         const flagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
 
-        if (!flagUser) {
-            return res.status(400).json({ message: 'User not found' });
+        if (!flagUser || flagUser.is_email_valid !== true) {
+            return res.status(400).json({ message: 'Email validation not completed or failed' });
         }
-
+        const customer = await Customer.findOne({ where: { id: account.userId} });
         const currentDateTime = new Date().toISOString(); 
 
         if (flagUser.otp === otp && new Date(flagUser.otp_expired_date) > new Date(currentDateTime)) {
@@ -286,12 +286,45 @@ export const verifyOtp = async (req, res) => {
                 },
                 { where: { customer_id: account.userId } }
             );
-            return res.status(200).json({ message: 'OTP verification successful' });
+            return res.status(200).json({
+                code: 200,
+                message: 'OTP verification success',
+                data: {
+                    account_no: account.no,
+                    customer_id: customer.id,
+                    account_type: account.accountType,
+                    balance: account.balance,
+                    customer_data: {
+                        username: customer.username,
+                        fullname: customer.fullname,
+                        email: customer.email,
+                        born_date: customer.bornDate,
+                    },
+                    flag_user: {
+                        is_card_valid: flagUser.is_card_valid,
+                        is_birth_valid: flagUser.is_birth_valid,
+                        is_email_valid: flagUser.is_email_valid,
+                        otp_code: flagUser.otp,
+                        otp_expired_date: flagUser.otp_expired_date,
+                        updated_at: flagUser.updated_at
+                    }
+                },
+                stepValidation: 4,
+                created_date: account.createdDate
+            });
         } else {
-            return res.status(400).json({ message: 'Invalid or expired OTP' });
+            return res.status(400).json({
+                code: 400,
+                message: 'Invalid or expired OTP',
+                data: null
+            });
         }
     } catch (error) {
         console.error('Error during OTP verification:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+            data: null
+        });
     }
 };
