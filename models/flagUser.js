@@ -55,6 +55,14 @@ const FlagUser = sequelize.define('flag_user', {
     is_verified: {
         type: DataTypes.BOOLEAN,
         allowNull: true
+    },
+    temp_password: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    temp_password_salt: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     tableName: 'flag_user',
