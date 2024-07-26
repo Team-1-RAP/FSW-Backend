@@ -6,7 +6,7 @@ const options = {
         info: {
             title: 'Simple Bank API - BE FSW',
             version: '1.0.0',
-            description: 'API',
+            description: '[/api/v3/api-docs](http://localhost:5000/api/v3/api-docs)',
         },
         servers: [
             {
