@@ -212,9 +212,30 @@ export const validateEmail = async (req, res) => {
             );
 
             return res.status(200).json({
-                message: 'Email validation successful. Check your email for OTP code',
-                account_no: account.no,
-                step: 3
+                code: 200,
+                message: 'Email validation success, check your email for OTP code',
+                data: {
+                    account_no: account.no,
+                    customer_id: customer.id,
+                    account_type: account.accountType,
+                    balance: account.balance,
+                    customer_data: {
+                        username: customer.username,
+                        fullname: customer.fullname,
+                        email: customer.email,
+                        born_date: customer.bornDate,
+                    },
+                    flag_user: {
+                        is_card_valid: flagUser.is_card_valid,
+                        is_birth_valid: flagUser.is_birth_valid,
+                        is_email_valid: flagUser.is_email_valid,
+                        otp_code: flagUser.otp,
+                        otp_expired_date: flagUser.otp_expired_date,
+                        updated_at: flagUser.updated_at
+                    }
+                },
+                stepValidation: 3,
+                created_date: account.createdDate
             });
 
         } else {
@@ -222,11 +243,19 @@ export const validateEmail = async (req, res) => {
                 { is_email_valid: false, updated_at: new Date().toISOString() },
                 { where: { customer_id: account.userId } }
             );
-            return res.status(400).json({ message: 'Email validation failed' });
+            return res.status(400).json({
+                code: 400,
+                message: 'Email validation failed',
+                data: null
+            });
         }
     } catch (error) {
         console.error('Error during email validation:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+            data: null
+        });
     }
 };
 
