@@ -63,7 +63,11 @@ const FlagUser = sequelize.define('flag_user', {
     temp_password_salt: {
         type: DataTypes.STRING,
         allowNull: true
-    }
+    },
+    is_new_password: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
+    },
 }, {
     tableName: 'flag_user',
     timestamps: false,
