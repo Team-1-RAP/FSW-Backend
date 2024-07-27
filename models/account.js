@@ -35,7 +35,7 @@ const Account = sequelize.define('account', {
         allowNull: false,
         field: 'balance'
     },
-    cardNumber: {
+    atm_card_no: {
         type: DataTypes.STRING(100),
         allowNull: false,
         field: 'atm_card_no'
@@ -54,6 +54,11 @@ const Account = sequelize.define('account', {
         type: DataTypes.BIGINT,
         allowNull: true,
         field: 'user_id'
+    },
+    pin: {
+        type: DataTypes.STRING(6),
+        allowNull: true,
+        field: 'pin'
     }
 }, {
     tableName: 'account',

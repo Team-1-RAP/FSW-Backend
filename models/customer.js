@@ -71,16 +71,6 @@ const Customer = sequelize.define('customer', {
         allowNull: false,
         field: 'login_attempts'
     },
-    otp: {
-        type: DataTypes.STRING(100),
-        allowNull: true,
-        field: 'otp'
-    },
-    otpExpiredDate: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        field: 'otp_expired_date'
-    },
     password: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -91,11 +81,6 @@ const Customer = sequelize.define('customer', {
         allowNull: true,
         unique: 'uk_rosd2guvs3i1agkplv5n8vu82',
         field: 'phone_number'
-    },
-    pin: {
-        type: DataTypes.STRING(6),
-        allowNull: true,
-        field: 'pin'
     },
     username: {
         type: DataTypes.STRING,
@@ -110,6 +95,7 @@ const Customer = sequelize.define('customer', {
     }
 }, {
     tableName: 'customer',
+    timestamps: false,
 });
 
 Customer.belongsToMany(Role, {through: 'oauth_user_role', foreignKey: 'user_id'});
