@@ -101,11 +101,11 @@ export const validateCard = async (req, res) => {
 };
 
 export const validateBirthDate = async (req, res) => {
-    const { account_no, born_date } = req.body;
+    const { cardNumber, born_date } = req.body;
 
     try {
         const account = await Account.findOne({
-            where: { no: account_no }
+            where: { atm_card_no: cardNumber }
         });
 
         if (!account) {
@@ -147,9 +147,6 @@ export const validateBirthDate = async (req, res) => {
             }
         });
 
-        const updateAtDB = flagUser.updated_at;
-        const updatedAtFormatted = formatToJakartaTime(updateAtDB);
-
         if (customer) {
             await FlagUser.update(
                 { is_birth_valid: true, updated_at: new Date() },
@@ -160,8 +157,8 @@ export const validateBirthDate = async (req, res) => {
                 where: { customer_id: account.userId }
             });
 
-            const updateAtDB = updatedFlagUser.updated_at;
-            const updatedAtFormatted = formatToJakartaTime(updateAtDB);
+            const updatedFlagUserUpdatedAt = updatedFlagUser.updated_at;
+            const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
 
             return res.status(200).json({
                 code: 200,
@@ -178,11 +175,11 @@ export const validateBirthDate = async (req, res) => {
                         born_date: customer.bornDate,
                     },
                     flag_user: {
-                        is_card_valid: flagUser.is_card_valid,
-                        is_birth_valid: flagUser.is_birth_valid,
-                        is_email_valid: flagUser.is_email_valid,
-                        is_verified: flagUser.is_verified,
-                        is_new_password: flagUser.is_new_password,
+                        is_card_valid: updatedFlagUser.is_card_valid,
+                        is_birth_valid: updatedFlagUser.is_birth_valid,
+                        is_email_valid: updatedFlagUser.is_email_valid,
+                        is_verified: updatedFlagUser.is_verified,
+                        is_new_password: updatedFlagUser.is_new_password,
                         updated_at: updatedAtFormatted
                     },
                 },

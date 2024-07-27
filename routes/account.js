@@ -46,7 +46,7 @@ const router = express.Router();
  *           format: date
  *           description: The birth date to be validated
  *       example:
- *         account_no: '123456789'
+ *         cardNumber: '123456789'
  *         born_date: '2002-12-29'
  */
 
