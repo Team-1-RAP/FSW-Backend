@@ -78,14 +78,15 @@ export const validateCard = async (req, res) => {
                         is_new_password: flagUser.is_new_password,
                         updated_at: updatedAtFormatted
                     },
-                    stepValidation: 1,
+                    step_validation: 1,
                     created_date: account.createdDate
                 }
             });
         } else {
-            return res.status(400).json({
-                code: 400,
+            return res.status(404).json({
+                code: 404,
                 message: 'Card validation failed',
+                status: false,
                 data: null
             });
         }
@@ -154,6 +155,14 @@ export const validateBirthDate = async (req, res) => {
                 { is_birth_valid: true, updated_at: new Date() },
                 { where: { customer_id: account.userId } }
             );
+
+            const updatedFlagUser = await FlagUser.findOne({
+                where: { customer_id: account.userId }
+            });
+
+            const updateAtDB = updatedFlagUser.updated_at;
+            const updatedAtFormatted = formatToJakartaTime(updateAtDB);
+
             return res.status(200).json({
                 code: 200,
                 message: 'Birth date validation success',
@@ -177,7 +186,7 @@ export const validateBirthDate = async (req, res) => {
                         updated_at: updatedAtFormatted
                     },
                 },
-                stepValidation: 2,
+                step_validation: 2,
                 created_date: account.createdDate
             });
         } else {
