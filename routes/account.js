@@ -10,10 +10,10 @@ const router = express.Router();
  *     CardValidation:
  *       type: object
  *       required:
- *         - account_no
+ *         - atm_card_no
  *         - card_number
  *       properties:
- *         cardNumber:
+ *         atm_card_no:
  *           type: string
  *           description: The card number to be validated
  *         expMonth:
@@ -23,7 +23,7 @@ const router = express.Router();
  *           type: integer
  *           description: The card year expired
  *       example:
- *         cardNumber: '123456789'
+ *         atm_card_no: '123456789'
  *         expMonth: 11
  *         expYear: 2025
  */
@@ -35,18 +35,18 @@ const router = express.Router();
  *     BirthDateValidation:
  *       type: object
  *       required:
- *         - account_no
+ *         - atm_card_no
  *         - born_date
  *       properties:
- *         account_no:
+ *         atm_card_no:
  *           type: string
- *           description: The account number of the user
+ *           description: The card number to be validated
  *         born_date:
  *           type: string
  *           format: date
  *           description: The birth date to be validated
  *       example:
- *         cardNumber: '123456789'
+ *         atm_card_no: '123456789'
  *         born_date: '2002-12-29'
  */
 
@@ -57,18 +57,18 @@ const router = express.Router();
  *     EmailValidation:
  *       type: object
  *       required:
- *         - account_no
+ *         - atm_card_no
  *         - email
  *       properties:
- *         account_no:
+ *         atm_card_no:
  *           type: string
- *           description: The account number of the user
+ *           description: The card number to be validated
  *         email:
  *           type: string
  *           format: email
  *           description: The email to be validated
  *       example:
- *         account_no: '123456789'
+ *         atm_card_no: '123456789'
  *         email: 'user@gmail.com'
  */
 
@@ -79,17 +79,17 @@ const router = express.Router();
  *     OtpVerification:
  *       type: object
  *       required:
- *         - account_no
+ *         - atm_card_no
  *         - otp
  *       properties:
- *         account_no:
+ *         atm_card_no:
  *           type: string
  *           description: The account number of the user
  *         otp:
  *           type: string
  *           description: The OTP to be verified
  *       example:
- *         account_no: '123456789'
+ *         atm_card_no: '123456789'
  *         otp: '123456'
  */
 

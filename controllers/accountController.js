@@ -20,10 +20,10 @@ export const getAccounts = async (req, res) => {
 };
 
 export const validateCard = async (req, res) => {
-    const { cardNumber, expMonth, expYear } = req.body;
+    const { atm_card_no, expMonth, expYear } = req.body;
 
     try {
-        if(!expMonth || !expYear || !cardNumber){
+        if(!expMonth || !expYear || !atm_card_no){
             return res.status(400).json({
                 code: 400,
                 message: 'Expired month, year and card number needed',
@@ -33,7 +33,7 @@ export const validateCard = async (req, res) => {
         
         const account = await Account.findOne({
             where: {
-                atm_card_no: cardNumber,
+                atm_card_no: atm_card_no,
                 [Op.and]: [
                     Sequelize.literal(`EXTRACT(MONTH FROM exp_date) = ${expMonth}`),
                     Sequelize.literal(`EXTRACT(YEAR FROM exp_date) = ${expYear}`)
@@ -65,7 +65,7 @@ export const validateCard = async (req, res) => {
                 code: 200,
                 message: 'Card validation success',
                 data: {
-                    atm_card_no: account.cardNumber,
+                    atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     account_type: account.accountType,
                     balance: account.balance,
@@ -101,11 +101,11 @@ export const validateCard = async (req, res) => {
 };
 
 export const validateBirthDate = async (req, res) => {
-    const { cardNumber, born_date } = req.body;
+    const { atm_card_no, born_date } = req.body;
 
     try {
         const account = await Account.findOne({
-            where: { atm_card_no: cardNumber }
+            where: { atm_card_no: atm_card_no }
         });
 
         if (!account) {
@@ -164,11 +164,13 @@ export const validateBirthDate = async (req, res) => {
                 code: 200,
                 message: 'Birth date validation success',
                 data: {
+                    atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
                     account_type: account.accountType,
                     balance: account.balance,
                     customer_data: {
+                        id: customer.id,
                         username: customer.username,
                         fullname: customer.fullname,
                         email: customer.email,
@@ -208,19 +210,38 @@ export const validateBirthDate = async (req, res) => {
 };
 
 export const validateEmail = async (req, res) => {
-    const { account_no, email } = req.body;
+    const { atm_card_no, email } = req.body; 
 
     try {
-        const account = await Account.findOne({ where: { no: account_no } });
+        if (!atm_card_no || !email ) { 
+            return res.status(404).json({
+                code: 404,
+                message: 'Card Number, and Email can not empty data',
+                status: false,
+                data: null
+            });
+        }
+
+        const account = await Account.findOne({ where: { atm_card_no: atm_card_no } });
 
         if (!account) {
-            return res.status(400).json({ message: 'Account not found' });
+            return res.status(404).json({
+                code: 404,
+                message: 'Account not found',
+                status: false,
+                data: null
+            });
         }
 
         const flagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
 
         if (!flagUser || flagUser.is_birth_valid !== true) {
-            return res.status(400).json({ message: 'Birth date validation not completed or failed' });
+            return res.status(400).json({
+                code: 400,
+                message: 'Birth date validation not completed or failed',
+                status: false,
+                data: null
+            });
         }
 
         const customer = await Customer.findOne({ where: { id: account.userId, email: email } });
@@ -241,27 +262,39 @@ export const validateEmail = async (req, res) => {
                 { where: { customer_id: account.userId } }
             );
 
+            const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+            
+            const { updated_at: updatedFlagUserUpdatedAt, otp_expired_date: otpExpiredDateFlagUser } = updatedFlagUser;
+            const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
+            const otpExpiredFormatted = formatToJakartaTime(otpExpiredDateFlagUser);
+
             return res.status(200).json({
                 code: 200,
                 message: 'Email validation success, check your email for OTP code',
                 data: {
+                    atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
                     account_type: account.accountType,
                     balance: account.balance,
                     customer_data: {
+                        id: customer.id,
                         username: customer.username,
                         fullname: customer.fullname,
                         email: customer.email,
                         born_date: customer.bornDate,
                     },
                     flag_user: {
-                        is_card_valid: flagUser.is_card_valid,
-                        is_birth_valid: flagUser.is_birth_valid,
-                        is_email_valid: flagUser.is_email_valid,
-                        otp_code: flagUser.otp,
-                        otp_expired_date: flagUser.otp_expired_date,
-                        updated_at: flagUser.updated_at
+                        is_card_valid: updatedFlagUser.is_card_valid,
+                        is_birth_valid: updatedFlagUser.is_birth_valid,
+                        is_email_valid: updatedFlagUser.is_email_valid,
+                        is_verified: updatedFlagUser.is_verified,
+                        is_new_password: updatedFlagUser.is_new_password,
+                        updated_at: updatedAtFormatted
+                    },
+                    otp_code: {
+                        otp: updatedFlagUser.otp,
+                        otp_expired_date: otpExpiredFormatted
                     }
                 },
                 stepValidation: 3,
@@ -290,10 +323,19 @@ export const validateEmail = async (req, res) => {
 };
 
 export const verifyOtp = async (req, res) => {
-    const { account_no, otp } = req.body;
+    const { atm_card_no, otp } = req.body;
 
     try {
-        const account = await Account.findOne({ where: { no: account_no } });
+        if (!atm_card_no || !otp ) { 
+            return res.status(404).json({
+                code: 404,
+                message: 'Atm card number, and otp code can not empty',
+                status: false,
+                data: null
+            });
+        }
+
+        const account = await Account.findOne({ where: { atm_card_no: atm_card_no } });
 
         if (!account) {
             return res.status(400).json({ message: 'Account not found' });
@@ -306,6 +348,12 @@ export const verifyOtp = async (req, res) => {
         }
         const customer = await Customer.findOne({ where: { id: account.userId} });
         const currentDateTime = new Date().toISOString(); 
+
+        const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+            
+        const { updated_at: updatedFlagUserUpdatedAt, otp_expired_date: otpExpiredDateFlagUser } = updatedFlagUser;
+        const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
+        const otpExpiredFormatted = formatToJakartaTime(otpExpiredDateFlagUser);
 
         if (flagUser.otp === otp && new Date(flagUser.otp_expired_date) > new Date(currentDateTime)) {
             await FlagUser.update(
@@ -320,24 +368,29 @@ export const verifyOtp = async (req, res) => {
                 code: 200,
                 message: 'OTP verification success',
                 data: {
+                    atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
                     account_type: account.accountType,
                     balance: account.balance,
                     customer_data: {
+                        id: customer.id,
                         username: customer.username,
                         fullname: customer.fullname,
                         email: customer.email,
                         born_date: customer.bornDate,
                     },
                     flag_user: {
-                        is_card_valid: flagUser.is_card_valid,
-                        is_birth_valid: flagUser.is_birth_valid,
-                        is_email_valid: flagUser.is_email_valid,
-                        is_verified: flagUser.is_verified,
-                        otp_code: flagUser.otp,
-                        otp_expired_date: flagUser.otp_expired_date,
-                        updated_at: flagUser.updated_at
+                        is_card_valid: updatedFlagUser.is_card_valid,
+                        is_birth_valid: updatedFlagUser.is_birth_valid,
+                        is_email_valid: updatedFlagUser.is_email_valid,
+                        is_verified: updatedFlagUser.is_verified,
+                        is_new_password: updatedFlagUser.is_new_password,
+                        updated_at: updatedAtFormatted
+                    },
+                    otp_code: {
+                        otp: updatedFlagUser.otp,
+                        otp_expired_date: otpExpiredFormatted
                     }
                 },
                 stepValidation: 4,

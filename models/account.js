@@ -35,7 +35,7 @@ const Account = sequelize.define('account', {
         allowNull: false,
         field: 'balance'
     },
-    cardNumber: {
+    atm_card_no: {
         type: DataTypes.STRING(100),
         allowNull: false,
         field: 'atm_card_no'
