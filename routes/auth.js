@@ -10,10 +10,10 @@ const router = express.Router();
  *     ChangePassword:
  *       type: object
  *       required:
- *         - account_no
+ *         - atm_card_no
  *         - newPassword
  *       properties:
- *         account_no:
+ *         atm_card_no:
  *           type: string
  *           description: The account number of the user
  *         password:
@@ -23,7 +23,7 @@ const router = express.Router();
  *           type: string
  *           description: The confirmation new password of the user
  *       example:
- *         account_no: '123456789'
+ *         atm_card_no: '123456789'
  *         password: 'password123'
  *         confirmPassword: 'password123'
  */
@@ -35,17 +35,17 @@ const router = express.Router();
  *     ValidatePin:
  *       type: object
  *       required:
- *         - account_no
+ *         - atm_card_no
  *         - pin
  *       properties:
- *         account_no:
+ *         atm_card_no:
  *           type: string
  *           description: The account number of the user
  *         pin:
  *           type: string
  *           description: The PIN of the user
  *       example:
- *         account_no: '123456789'
+ *         atm_card_no: '123456789'
  *         pin: '123456'
  */
 

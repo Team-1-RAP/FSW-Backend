@@ -2,9 +2,10 @@ import bcrypt from 'bcrypt';
 import Account from "../models/account.js";
 import FlagUser from '../models/flagUser.js';
 import Customer from '../models/customer.js';
+import { formatToJakartaTime } from '../utils/dateUtils.js';
 
 export const changePassword = async (req, res) => {
-    const { account_no, password, confirmPassword } = req.body;
+    const { atm_card_no, password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
         return res.status(400).json({ 
@@ -15,7 +16,7 @@ export const changePassword = async (req, res) => {
     }
 
     try {
-        const account = await Account.findOne({ where: { no: account_no } });
+        const account = await Account.findOne({ where: { atm_card_no: atm_card_no } });
 
         if (!account) {
             return res.status(400).json({ 
@@ -46,29 +47,41 @@ export const changePassword = async (req, res) => {
             },
             { where: { customer_id: account.userId } }
         );
+
+        const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+            
+        const { updated_at: updatedFlagUserUpdatedAt, otp_expired_date: otpExpiredDateFlagUser } = updatedFlagUser;
+        const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
+        const otpExpiredFormatted = formatToJakartaTime(otpExpiredDateFlagUser);
+
         return res.status(200).json({ 
             code: 200,
             message: 'New password succes, please verify PIN for teh last step', 
             data: {
+                atm_card_no: account.atm_card_no,
                 account_no: account.no,
                 customer_id: customer.id,
                 account_type: account.accountType,
                 balance: account.balance,
                 customer_data: {
+                    id: customer.id,
                     username: customer.username,
                     fullname: customer.fullname,
                     email: customer.email,
                     born_date: customer.bornDate,
                 },
                 flag_user: {
-                    is_card_valid: flagUser.is_card_valid,
-                    is_birth_valid: flagUser.is_birth_valid,
-                    is_email_valid: flagUser.is_email_valid,
-                    is_verified: flagUser.is_verified,
-                    is_new_password: flagUser.is_new_password,
-                    otp_code: flagUser.otp,
-                    otp_expired_date: flagUser.otp_expired_date,
-                    updated_at: flagUser.updated_at
+                    is_card_valid: updatedFlagUser.is_card_valid,
+                    is_birth_valid: updatedFlagUser.is_birth_valid,
+                    is_email_valid: updatedFlagUser.is_email_valid,
+                    is_verified: updatedFlagUser.is_verified,
+                    is_new_password: updatedFlagUser.is_new_password,
+                    temp_password: updatedFlagUser.temp_password,
+                    updated_at: updatedAtFormatted
+                },
+                otp_code: {
+                    otp: updatedFlagUser.otp,
+                    otp_expired_date: otpExpiredFormatted
                 }
             },
             stepValidation: 5,
@@ -85,10 +98,10 @@ export const changePassword = async (req, res) => {
 };
 
 export const validatePin = async (req, res) => {
-    const { account_no, pin } = req.body;
+    const { atm_card_no, pin } = req.body;
 
     try {
-        const account = await Account.findOne({ where: { no: account_no } });
+        const account = await Account.findOne({ where: { atm_card_no: atm_card_no } });
 
         if (!account) {
             return res.status(400).json({ 
@@ -118,7 +131,7 @@ export const validatePin = async (req, res) => {
             });
         }
 
-        if (customer.pin !== pin){
+        if (account.pin !== pin){
             return res.status(400).json({ 
                 code: 400,
                 message: 'Invalid PIN',
@@ -141,29 +154,42 @@ export const validatePin = async (req, res) => {
             },
             { where: { customer_id: account.userId } }
         );
+
+        const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+            
+        const { updated_at: updatedFlagUserUpdatedAt, otp_expired_date: otpExpiredDateFlagUser } = updatedFlagUser;
+        const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
+        const otpExpiredFormatted = formatToJakartaTime(otpExpiredDateFlagUser);
+
         return res.status(200).json({
             code: 200,
             message: 'Success. Password reset has been completed, please login with your new password!',
             data: {
+                atm_card_no: account.atm_card_no,
                 account_no: account.no,
+                pin: account.pin,
                 customer_id: customer.id,
                 account_type: account.accountType,
                 balance: account.balance,
                 customer_data: {
+                    id: customer.id,
                     username: customer.username,
                     fullname: customer.fullname,
                     email: customer.email,
                     born_date: customer.bornDate,
                 },
                 flag_user: {
-                    is_card_valid: flagUser.is_card_valid,
-                    is_birth_valid: flagUser.is_birth_valid,
-                    is_email_valid: flagUser.is_email_valid,
-                    is_verified: flagUser.is_verified,
-                    is_new_password: flagUser.is_new_password,
-                    otp_code: flagUser.otp,
-                    otp_expired_date: flagUser.otp_expired_date,
-                    updated_at: flagUser.updated_at
+                    is_card_valid: updatedFlagUser.is_card_valid,
+                    is_birth_valid: updatedFlagUser.is_birth_valid,
+                    is_email_valid: updatedFlagUser.is_email_valid,
+                    is_verified: updatedFlagUser.is_verified,
+                    is_new_password: updatedFlagUser.is_new_password,
+                    temp_password: updatedFlagUser.temp_password,
+                    updated_at: updatedAtFormatted
+                },
+                otp_code: {
+                    otp: updatedFlagUser.otp,
+                    otp_expired_date: otpExpiredFormatted
                 }
             },
             stepValidation: 6,

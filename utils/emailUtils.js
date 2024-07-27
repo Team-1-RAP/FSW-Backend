@@ -29,11 +29,50 @@ export const sendOTPEmail = async (email, otp) => {
             },
         });
 
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+                    .container { width: 100%; max-width: 600px; margin: auto; padding: 20px; }
+                    .header { background-color: #2FA6FC; color: white; padding: 10px; text-align: center; }
+                    .footer { background-color: #f1f1f1; color: #333; padding: 10px; text-align: center; font-size: 12px; }
+                    .content { padding: 20px; background-color: #ffffff; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+                    .otp-code { font-size: 24px; font-weight: bold; color: #4CAF50; }
+                    @media (max-width: 600px) {
+                        .container { width: 100%; padding: 10px; }
+                        .header, .footer { font-size: 14px; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Simple Bank</h1>
+                    </div>
+                    <div class="content">
+                        <p>Dear User,</p>
+                        <p>Your OTP code is:  <span class="otp-code">${otp}</span></p>
+                        <p>Please use this code to complete your verification process.</p>
+                        <p>Thank you!</p>
+                    </div>
+                    <div class="footer">
+                        <p>&copy; ${new Date().getFullYear()} Simple Bank Teams. All rights reserved.</p>
+                        <p>Simple Bank Teams Binar | <a href="mailto:simplebankteams@gmail.com">Contact Us</a> | <a href="#">Unsubscribe</a></p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
         const mailOptions = {
             from: EMAIL_USER,
             to: email,
             subject: 'Your OTP Code',
-            text: `Your OTP code is ${otp}`,
+            html: htmlContent,
         };
 
         const result = await transporter.sendMail(mailOptions);
