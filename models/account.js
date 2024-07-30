@@ -57,8 +57,13 @@ const Account = sequelize.define('account', {
     },
     pin: {
         type: DataTypes.STRING(6),
-        allowNull: true,
+        allowNull: false,
         field: 'pin'
+    },
+    pin_attempts: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'pin_attempts'
     }
 }, {
     tableName: 'account',
