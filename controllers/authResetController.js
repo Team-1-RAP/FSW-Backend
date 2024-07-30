@@ -150,16 +150,23 @@ export const validatePin = async (req, res) => {
 
         await FlagUser.update(
             {
-                temp_password: null
+                is_card_valid: null,
+                is_birth_valid: null,
+                is_email_valid: null,
+                is_verified: null,
+                is_new_password: null,
+                otp: null,
+                otp_expired_date: null,
+                temp_password: null,
+                temp_password_salt: null
             },
             { where: { customer_id: account.userId } }
         );
 
         const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
             
-        const { updated_at: updatedFlagUserUpdatedAt, otp_expired_date: otpExpiredDateFlagUser } = updatedFlagUser;
+        const { updated_at: updatedFlagUserUpdatedAt } = updatedFlagUser;
         const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
-        const otpExpiredFormatted = formatToJakartaTime(otpExpiredDateFlagUser);
 
         return res.status(200).json({
             code: 200,
@@ -189,7 +196,7 @@ export const validatePin = async (req, res) => {
                 },
                 otp_code: {
                     otp: updatedFlagUser.otp,
-                    otp_expired_date: otpExpiredFormatted
+                    otp_expired_date: null
                 }
             },
             stepValidation: 6,

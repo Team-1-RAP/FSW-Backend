@@ -329,7 +329,7 @@ export const verifyOtp = async (req, res) => {
         if (!atm_card_no || !otp ) { 
             return res.status(404).json({
                 code: 404,
-                message: 'Atm card number, and otp code can not empty',
+                message: 'Atm card number and OTP code cannot be empty',
                 status: false,
                 data: null
             });
@@ -346,14 +346,9 @@ export const verifyOtp = async (req, res) => {
         if (!flagUser || flagUser.is_email_valid !== true) {
             return res.status(400).json({ message: 'Email validation not completed or failed' });
         }
-        const customer = await Customer.findOne({ where: { id: account.userId} });
-        const currentDateTime = new Date().toISOString(); 
 
-        const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
-            
-        const { updated_at: updatedFlagUserUpdatedAt, otp_expired_date: otpExpiredDateFlagUser } = updatedFlagUser;
-        const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
-        const otpExpiredFormatted = formatToJakartaTime(otpExpiredDateFlagUser);
+        const customer = await Customer.findOne({ where: { id: account.userId } });
+        const currentDateTime = new Date().toISOString();
 
         if (flagUser.otp === otp && new Date(flagUser.otp_expired_date) > new Date(currentDateTime)) {
             await FlagUser.update(
@@ -364,6 +359,13 @@ export const verifyOtp = async (req, res) => {
                 },
                 { where: { customer_id: account.userId } }
             );
+
+            const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+
+            const { updated_at: updatedFlagUserUpdatedAt, otp_expired_date: otpExpiredDateFlagUser } = updatedFlagUser;
+            const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
+            const otpExpiredFormatted = formatToJakartaTime(otpExpiredDateFlagUser);
+
             return res.status(200).json({
                 code: 200,
                 message: 'OTP verification success',
@@ -384,7 +386,7 @@ export const verifyOtp = async (req, res) => {
                         is_card_valid: updatedFlagUser.is_card_valid,
                         is_birth_valid: updatedFlagUser.is_birth_valid,
                         is_email_valid: updatedFlagUser.is_email_valid,
-                        is_verified: updatedFlagUser.is_verified,
+                        is_verified: updatedFlagUser.is_verified, 
                         is_new_password: updatedFlagUser.is_new_password,
                         updated_at: updatedAtFormatted
                     },
