@@ -59,6 +59,7 @@ export const changePin = async (req, res) => {
     await Account.update(
       {
         pin: pin,
+        pin_attempts: 0
       },
       { where: { user_id: flagUser.customer_id } }
     );
