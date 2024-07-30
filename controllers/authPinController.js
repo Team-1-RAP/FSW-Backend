@@ -6,15 +6,22 @@ import { formatToJakartaTime } from '../utils/dateUtils.js';
 export const changePin = async (req, res) => {
   const { atm_card_no, pin, confirmPin } = req.body;
 
-  if (pin !== confirmPin) {
-    return res.status(400).json({
-      code: 400,
-      message: 'Pin does not match',
-      data: null,
-    });
-  }
-
   try {
+    if (!atm_card_no || !pin || !confirmPin) {
+      return res.status(400).json({
+        code: 400,
+        message: 'Atm card number, new pin and confirmation your new pin needed',
+        data: null,
+      });
+    }
+
+    if (pin !== confirmPin) {
+      return res.status(400).json({
+        code: 400,
+        message: 'Pin does not match',
+        data: null,
+      });
+    }
     const account = await Account.findOne({ where: { atm_card_no: atm_card_no } });
 
     if (!account) {
@@ -45,7 +52,7 @@ export const changePin = async (req, res) => {
         is_new_password: null,
         otp: null,
         otp_expired_date: null,
-        is_new_pin: null
+        is_new_pin: null,
       },
       { where: { customer_id: account.userId } }
     );
@@ -58,7 +65,7 @@ export const changePin = async (req, res) => {
 
     const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
 
-    const { updated_at: updatedFlagUserUpdatedAt} = updatedFlagUser;
+    const { updated_at: updatedFlagUserUpdatedAt } = updatedFlagUser;
     const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
 
     return res.status(200).json({
