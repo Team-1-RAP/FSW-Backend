@@ -22,5 +22,8 @@
     "sequelize": "^6.37.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
+  },
+  "scripts": {
+    "start": "nodemon index.js"
   }
 }
