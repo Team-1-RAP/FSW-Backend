@@ -5,7 +5,7 @@ import accountRoutes from './routes/account.js';
 import authRoutes from './routes/auth.js';
 import BankRoutes from './routes/Bank.js';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './swagger.js'; 
+import swaggerSpec from './swagger.js';
 
 dotenv.config();
 

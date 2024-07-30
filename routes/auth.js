@@ -1,5 +1,6 @@
 import express from 'express';
 import { changePassword, validatePin } from '../controllers/authResetController.js';
+import { changePin } from '../controllers/authPinController.js';
 
 const router = express.Router();
 
@@ -53,7 +54,7 @@ const router = express.Router();
  * @swagger
  * /v1/reset/password/validation/changePassword:
  *   post:
- *     summary: 
+ *     summary:
  *     tags: [Reset Password]
  *     requestBody:
  *       required: true
@@ -75,7 +76,7 @@ const router = express.Router();
  * @swagger
  * /v1/reset/password/validation/pin:
  *   post:
- *     summary: 
+ *     summary:
  *     tags: [Reset Password]
  *     requestBody:
  *       required: true
@@ -92,7 +93,55 @@ const router = express.Router();
  *               type: object
  *               properties:
  */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ChangePin:
+ *       type: object
+ *       required:
+ *         - atm_card_no
+ *         - newPin
+ *       properties:
+ *         atm_card_no:
+ *           type: string
+ *           description: The account number of the user
+ *         pin:
+ *           type: string
+ *           description: The new pin of the user
+ *         confirmPin:
+ *           type: string
+ *           description: The confirmation new pin of the user
+ *       example:
+ *         atm_card_no: '123456789'
+ *         pin: 'pin123'
+ *         confirmPin: 'pin123'
+ */
+
+/**
+ * @swagger
+ * /v1/reset/pin/validation/changePin:
+ *   post:
+ *     summary:
+ *     tags: [Reset Pin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ChangePin'
+ *     responses:
+ *       200:
+ *         description: Pin change successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ */
+
 router.post('/v1/reset/password/validation/changePassword', changePassword);
 router.post('/v1/reset/password/validation/pin', validatePin);
-
+router.post('/v1/reset/pin/validation/changePin', changePin);
 export default router;

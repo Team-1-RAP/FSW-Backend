@@ -250,7 +250,8 @@ export const validateEmail = async (req, res) => {
             const otp = generateOTP();
             const otpExpiry = new Date(Date.now() + 10 * 60 * 1000).toISOString(); 
 
-            await sendOTPEmail(email, otp);
+            const name = customer.fullname || 'Pengguna SimpleBank';
+            await sendOTPEmail(email, otp, name);
 
             await FlagUser.update(
                 {
