@@ -115,8 +115,8 @@ const router = express.Router();
  *           description: The confirmation new pin of the user
  *       example:
  *         atm_card_no: '123456789'
- *         pin: 'pin123'
- *         confirmPin: 'pin123'
+ *         pin: '123654'
+ *         confirmPin: '123654'
  */
 
 /**
