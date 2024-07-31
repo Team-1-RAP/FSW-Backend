@@ -74,6 +74,10 @@ const FlagUser = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: true,
     },
+    is_currentPass_valid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    }
   },
   {
     tableName: 'flag_user',
