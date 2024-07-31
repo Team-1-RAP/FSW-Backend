@@ -70,7 +70,7 @@ const Account = sequelize.define('account', {
     timestamps: false,
 });
 
-Account.belongsTo(Customer, {foreignKey: 'userId', onDelete: 'CASCADE'});
+Account.belongsTo(Customer, { foreignKey: 'userId', as: 'customer', onDelete: 'CASCADE' });
 Account.belongsTo(Bank, {foreignKey: 'bankId', onDelete: 'CASCADE'});
 
 export default Account;
