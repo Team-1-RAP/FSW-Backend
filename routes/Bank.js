@@ -1,5 +1,6 @@
 import express from 'express';
 import { bankTransferValidation } from '../controllers/BankTransferController.js';
+import { verifyToken } from '../middleware/VerifyToken.js';
 
 const router = express.Router();
 
@@ -10,8 +11,6 @@ const router = express.Router();
  *     BankTransferValidation:
  *       type: object
  *       required:
- *         - user_id
- *         - no_account
  *         - bank_id
  *         - recipient_no_account
  *       properties:
@@ -28,17 +27,20 @@ const router = express.Router();
  *           type: string
  *           description: The recipient account number
  *       example:
- *         user_id: 1
- *         no_account: "1234567890"
- *         bank_id: 2
+ *         bank_id: 1
  *         recipient_no_account: "0987654321"
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  */
 
 /**
  * @swagger
  * tags:
  *   name: Bank Validation
- *   description: 
+ *   description: Endpoints for bank transfer validation
  */
 
 /**
@@ -47,6 +49,8 @@ const router = express.Router();
  *   post:
  *     summary: 
  *     tags: [Bank Validation]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -72,6 +76,6 @@ const router = express.Router();
  *                   description: Additional data
  */
 
-router.post('/v1/transfer/validation/bank', bankTransferValidation);
+router.post('/v1/transfer/validation/bank', verifyToken, bankTransferValidation);
 
 export default router;

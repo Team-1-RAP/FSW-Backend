@@ -1,34 +1,15 @@
 import Account from "../models/account.js";
 import Customer from "../models/customer.js";
-import AccountNonBca from "../models/AccountNonBca.js";
 import Bank from "../models/bank.js";
 
 export const bankTransferValidation = async (req, res) => {
-    const { user_id, no_account, bank_id, recipient_no_account } = req.body;
+    const { bank_id, recipient_no_account } = req.body;
 
     try {
-        if (!user_id || !no_account || !bank_id || !recipient_no_account) {
+        if (!bank_id || !recipient_no_account) {
             return res.status(400).json({
                 code: 400,
-                message: 'User id, no account, bank id, and recipient account number needed',
-                data: null
-            });
-        }
-
-        const customer = await Customer.findOne({ where: { id: user_id } });
-        if (!customer) {
-            return res.status(404).json({
-                code: 404,
-                message: 'User not found',
-                data: null
-            });
-        }
-
-        const account = await Account.findOne({ where: { no: no_account, userId: user_id } });
-        if (!account) {
-            return res.status(404).json({
-                code: 404,
-                message: 'Account number data not found or does not belong to the user',
+                message: 'Bank ID and recipient account needed',
                 data: null
             });
         }
@@ -37,36 +18,53 @@ export const bankTransferValidation = async (req, res) => {
         if (!bankDestination) {
             return res.status(404).json({
                 code: 404,
-                message: 'Bank destination not found',
+                message: 'Bank Destination not found',
                 data: null
             });
         }
 
-        let recipientAccount = null;
-        if (bankDestination.id === 1) {
-            recipientAccount = await Account.findOne({ 
-                where: { 
-                    no: recipient_no_account,
-                    bankId: bankDestination.id 
+        let recipientAccount;
+        if (bank_id === 1) {
+            recipientAccount = await Account.findOne({
+                where: { no: recipient_no_account },
+                include: {
+                    model: Customer,
+                    as: 'customer',
+                    attributes: ['username', 'fullname']
                 }
             });
-
-            if (!recipientAccount) {
-                return res.status(404).json({
-                    code: 404,
-                    message: 'Recipient account number not registered as BCA user',
-                    data: null
-                });
-            }
         } else {
-            recipientAccount = await AccountNonBca.findOne({ where: { no_non_bca: recipient_no_account } });
-            if (!recipientAccount) {
-                return res.status(404).json({
-                    code: 404,
-                    message: 'Recipient account number not found',
-                    data: null
-                });
-            }
+            return res.status(400).json({
+                code: 400,
+                message: 'Use Bank BCA as bank destination for transfer default',
+                data: null
+            });
+        }
+
+        if (!recipientAccount || !recipientAccount.customer) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Recipient account number not found',
+                data: null
+            });
+        }
+
+        const customer = await Customer.findOne({ where: { id: req.user.userId } });
+        if (!customer) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Data user not found',
+                data: null
+            });
+        }
+
+        const account = await Account.findOne({ where: { userId: customer.id } });
+        if (!account) {
+            return res.status(404).json({
+                code: 404,
+                message: 'User account not found',
+                data: null
+            });
         }
 
         return res.status(200).json({
@@ -75,24 +73,21 @@ export const bankTransferValidation = async (req, res) => {
             data: {
                 user_id: customer.id,
                 account_no: account.no,
-                bank_id: bankDestination.id,
-                recipient_no_account: recipientAccount.no ? recipientAccount.no : recipientAccount.no_non_bca,
-                user_account: {
-                    no: account.no,
-                    balance: account.balance,
-                    accountType: account.account_type
-                },
+                bank_id: account.bankId,
                 bank_destination: {
                     id: bankDestination.id,
                     name: bankDestination.bankName,
                     adminFee: bankDestination.adminFee
                 },
-                recipientAccount: {
-                    no: recipientAccount.no || recipientAccount.no_non_bca,
-                    atmCardNo: recipientAccount.atm_card_no,
-                    accountType: recipientAccount.account_type,
+                recipient_account: {
+                    id: recipientAccount.userId,
+                    username: recipientAccount.customer.username,
+                    fullname: recipientAccount.customer.fullname,
+                    account_no: recipientAccount.no,
+                    atm_card_no: recipientAccount.atm_card_no,
+                    account_type: recipientAccount.accountType,
                     balance: recipientAccount.balance,
-                    bankId: recipientAccount.bank_id
+                    bank_id: recipientAccount.bankId
                 }
             }
         });
