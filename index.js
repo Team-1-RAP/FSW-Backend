@@ -4,6 +4,7 @@ import cors from 'cors';
 import accountRoutes from './routes/account.js';
 import authRoutes from './routes/auth.js';
 import BankRoutes from './routes/Bank.js';
+import ChangePasswordRoutes from './routes/ChangePassword.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
 
@@ -18,6 +19,7 @@ app.use('/api/v3/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(accountRoutes);
 app.use(authRoutes);
 app.use(BankRoutes);
+app.use(ChangePasswordRoutes);
 
 const PORT = process.env.PORT || 5000; 
 app.listen(PORT, () => {

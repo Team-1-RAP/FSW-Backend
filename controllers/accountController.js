@@ -5,7 +5,7 @@ import { Op, Sequelize } from 'sequelize';
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { formatToJakartaTime } from "../utils/dateUtils.js";
 
-const generateOTP = () => {
+export const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
