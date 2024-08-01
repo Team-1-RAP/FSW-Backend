@@ -1,5 +1,5 @@
 import express from 'express';
-import { currentPassword, validateEmail, verifyOtp } from '../controllers/ChangePasswordController.js';
+import { currentPassword, validateEmail, verifyOtp, changePassword } from '../controllers/ChangePasswordController.js';
 import { verifyToken } from '../middleware/VerifyToken.js';
 
 const router = express.Router();
@@ -15,7 +15,6 @@ const router = express.Router();
  *       properties:
  *         current_password:
  *           type: string
- *           description: The current password of the user
  *       example:
  *         current_password: "password"
  *   securitySchemes:
@@ -36,7 +35,6 @@ const router = express.Router();
  *       properties:
  *         email:
  *           type: string
- *           description: The email address to be validated
  *       example:
  *         email: "user@gmail.com"
  */
@@ -52,9 +50,27 @@ const router = express.Router();
  *       properties:
  *         otp:
  *           type: string
- *           description: The OTP code to be validated
  *       example:
  *         otp: "315263"
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ChangePasswordRequest:
+ *       type: object
+ *       required:
+ *         - password
+ *         - confirmPassword
+ *       properties:
+ *         password:
+ *           type: string
+ *         confirmPassword:
+ *           type: string
+ *       example:
+ *         password: "passwordtes"
+ *         confirmPassword: "passwordtes"
  */
 
 /**
@@ -88,20 +104,17 @@ const router = express.Router();
  *               properties:
  *                 code:
  *                   type: integer
- *                   description: Response code
  *                 message:
  *                   type: string
- *                   description: Response message
  *                 data:
  *                   type: object
- *                   description: Additional data
  */
 
 /**
  * @swagger
  * /v1/change/password/validation/email:
  *   post:
- *     summary: 
+ *     summary:
  *     tags: [Change Password]
  *     security:
  *       - bearerAuth: []
@@ -121,13 +134,10 @@ const router = express.Router();
  *               properties:
  *                 code:
  *                   type: integer
- *                   description: Response code
  *                 message:
  *                   type: string
- *                   description: Response message
  *                 data:
  *                   type: object
- *                   description: Additional data
  */
 
 /**
@@ -154,17 +164,45 @@ const router = express.Router();
  *               properties:
  *                 code:
  *                   type: integer
- *                   description: Response code
  *                 message:
  *                   type: string
- *                   description: Response message
  *                 data:
  *                   type: object
- *                   description: Additional data
+ */
+
+/**
+ * @swagger
+ * /v1/change/password/validation/changePassword:
+ *   post:
+ *     summary:
+ *     tags: [Change Password]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ChangePasswordRequest'
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
  */
 
 router.post('/v1/change/password/validation/currentPassword', verifyToken, currentPassword);
 router.post('/v1/change/password/validation/email', verifyToken, validateEmail);
 router.post('/v1/change/password/validation/otpVerify', verifyToken, verifyOtp);
+router.post('/v1/change/password/validation/changePassword', verifyToken, changePassword);
 
 export default router;
