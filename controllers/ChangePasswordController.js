@@ -201,3 +201,94 @@ export const validateEmail = async (req, res) => {
         });
     }
 };
+
+export const verifyOtp = async (req, res) => {
+    const { otp } = req.body;
+
+    try {
+        if (!otp ) { 
+            return res.status(404).json({
+                code: 404,
+                message: 'OTP code cannot be empty',
+                status: false,
+                data: null
+            });
+        }
+
+        const account = await Account.findOne({ where: { userId: req.user.userId } });
+
+        if (!account) {
+            return res.status(400).json({ message: 'Account not found' });
+        }
+
+        const flagUser = await FlagUser.findOne({ where: { customer_id: req.user.userId } });
+
+        if (!flagUser || flagUser.is_email_valid !== true) {
+            return res.status(400).json({ message: 'Email validation not completed or failed' });
+        }
+
+        const customer = await Customer.findOne({ where: { id: req.user.userId } });
+        const currentDateTime = new Date().toISOString();
+
+        if (flagUser.otp === otp && new Date(flagUser.otp_expired_date) > new Date(currentDateTime)) {
+            await FlagUser.update(
+                { 
+                    is_email_valid: true, 
+                    is_verified: true,
+                    updated_at: new Date().toISOString() 
+                },
+                { where: { customer_id: req.user.userId } }
+            );
+
+            const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: req.user.userId } });
+
+            const { updated_at: updatedFlagUserUpdatedAt, otp_expired_date: otpExpiredDateFlagUser } = updatedFlagUser;
+            const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
+            const otpExpiredFormatted = formatToJakartaTime(otpExpiredDateFlagUser);
+
+            return res.status(200).json({
+                code: 200,
+                message: 'OTP verification success',
+                data: {
+                    atm_card_no: account.atm_card_no,
+                    account_no: account.no,
+                    customer_id: customer.id,
+                    account_type: account.accountType,
+                    balance: account.balance,
+                    customer_data: {
+                        id: customer.id,
+                        username: customer.username,
+                        fullname: customer.fullname,
+                        email: customer.email,
+                        born_date: customer.bornDate,
+                    },
+                    flag_user: {
+                        is_currentPass_valid: updatedFlagUser.is_currentPass_valid,
+                        is_email_valid: updatedFlagUser.is_email_valid,
+                        is_verified: updatedFlagUser.is_verified,
+                        updated_at: updatedAtFormatted
+                    },
+                    otp_code: {
+                        otp: updatedFlagUser.otp,
+                        otp_expired_date: otpExpiredFormatted
+                    }
+                },
+                stepValidation: 4,
+                created_date: account.createdDate
+            });
+        } else {
+            return res.status(400).json({
+                code: 400,
+                message: 'Invalid or expired OTP',
+                data: null
+            });
+        }
+    } catch (error) {
+        console.error('Error during OTP verification:', error);
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+            data: null
+        });
+    }
+};
