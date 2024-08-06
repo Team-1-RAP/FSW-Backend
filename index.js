@@ -1,6 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import fs from 'fs'; 
+import https from 'https'; 
 import accountRoutes from './routes/account.js';
 import authRoutes from './routes/auth.js';
 import BankRoutes from './routes/Bank.js';
@@ -21,7 +23,23 @@ app.use(authRoutes);
 app.use(BankRoutes);
 app.use(ChangePasswordRoutes);
 
-const PORT = process.env.PORT || 5000; 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.use((req, res, next) => {
+  if (!req.secure) {
+    return res.redirect('https://' + req.headers.host + req.url);
+  }
+  next();
+});
+
+const privateKey = fs.readFileSync('/etc/nginx/ssl/selfsigned.key', 'utf8');
+const certificate = fs.readFileSync('/etc/nginx/ssl/selfsigned.crt', 'utf8');
+
+const credentials = {
+  key: privateKey,
+  cert: certificate
+};
+
+const httpsServer = https.createServer(credentials, app);
+
+httpsServer.listen(443, () => {
+  console.log('HTTPS Server is running on port 443');
 });
