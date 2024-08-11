@@ -1,10 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import accountRoutes from './routes/account.js';
-import authRoutes from './routes/auth.js';
-import BankRoutes from './routes/Bank.js';
-import ChangePasswordRoutes from './routes/ChangePassword.js';
+import accountRoutes from './src/routes/account.js';
+import authRoutes from './src/routes/auth.js';
+import BankRoutes from './src/routes/Bank.js';
+import ChangePasswordRoutes from './src/routes/ChangePassword.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
 
