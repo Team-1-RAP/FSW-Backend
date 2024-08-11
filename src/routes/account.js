@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAccounts, validateCard, validateBirthDate, validateEmail, verifyOtp } from "../controllers/accountController.js";
+import { validateCard, validateBirthDate, validateEmail, verifyOtp } from "../controllers/ResetPasswordController.js";
 
 const router = express.Router();
 
@@ -188,7 +188,6 @@ const router = express.Router();
  *               properties:
  */
 
-router.get('/v1/accounts', getAccounts);
 router.post('/v1/reset/password/validation/card', validateCard);
 router.post('/v1/reset/password/validation/birthDate', validateBirthDate);
 router.post('/v1/reset/password/validation/email', validateEmail);

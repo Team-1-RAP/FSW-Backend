@@ -4,20 +4,7 @@ import Customer from '../models/customer.js';
 import { Op, Sequelize } from 'sequelize';
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { formatToJakartaTime } from "../utils/dateUtils.js";
-
-export const generateOTP = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-};
-
-export const getAccounts = async (req, res) => {
-    try {
-        const accounts = await Account.findAll();
-        res.json(accounts);
-    } catch (err){
-        console.error('Error fetching accounts', err);
-        res.status(500).json({ error: 'Error fetching accounts' })
-    }
-};
+import { generateOTP } from "../utils/generateOtpUtils.js";
 
 export const validateCard = async (req, res) => {
     const { atm_card_no, expMonth, expYear } = req.body;
@@ -415,3 +402,4 @@ export const verifyOtp = async (req, res) => {
         });
     }
 };
+
