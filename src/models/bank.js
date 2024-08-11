@@ -29,13 +29,14 @@ const Bank = sequelize.define('bank', {
         allowNull: false,
         field: 'bank_name'
     },
-    biayaAdmin: {
+    adminFee: {
         type: DataTypes.DOUBLE,
         allowNull: false,
-        field: 'biaya_admin'
+        field: 'admin_fee'
     }
 }, {
-    tableName: 'bank'
+    tableName: 'bank',
+    timestamps: false
 });
 
 export default Bank;

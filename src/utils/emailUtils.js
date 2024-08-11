@@ -13,7 +13,7 @@ const EMAIL_USER = process.env.EMAIL_USER;
 const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
-export const sendOTPEmail = async (email, otp) => {
+export const sendOTPEmail = async (email, otp, name) => {
     try {
         const accessToken = await oAuth2Client.getAccessToken();
 
@@ -54,10 +54,12 @@ export const sendOTPEmail = async (email, otp) => {
                         <h1>Simple Bank</h1>
                     </div>
                     <div class="content">
-                        <p>Dear User,</p>
-                        <p>Your OTP code is:  <span class="otp-code">${otp}</span></p>
-                        <p>Please use this code to complete your verification process.</p>
-                        <p>Thank you!</p>
+                        <p>Halo, ${name}</p>
+                        <p>Kode OTP kamu adalah: <span class="otp-code">${otp}</span></p>
+                        <p>Kode ini berlaku selama 10 menit sejak diterima. Gunakan kode ini pada aplikasi SimpleBank.</p>
+                        <p>Harap abaikan email ini jika kamu tidak meminta kode OTP.</p>
+                        <p>Terima kasih,</p>
+                        <p>Tim SimpleBank</p>
                     </div>
                     <div class="footer">
                         <p>&copy; ${new Date().getFullYear()} Simple Bank Teams. All rights reserved.</p>
@@ -71,7 +73,7 @@ export const sendOTPEmail = async (email, otp) => {
         const mailOptions = {
             from: EMAIL_USER,
             to: email,
-            subject: 'Your OTP Code',
+            subject: 'Kode OTP Anda',
             html: htmlContent,
         };
 

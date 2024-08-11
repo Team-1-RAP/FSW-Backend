@@ -57,15 +57,20 @@ const Account = sequelize.define('account', {
     },
     pin: {
         type: DataTypes.STRING(6),
-        allowNull: true,
+        allowNull: false,
         field: 'pin'
+    },
+    pin_attempts: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'pin_attempts'
     }
 }, {
     tableName: 'account',
     timestamps: false,
 });
 
-Account.belongsTo(Customer, {foreignKey: 'userId', onDelete: 'CASCADE'});
+Account.belongsTo(Customer, { foreignKey: 'userId', as: 'customer', onDelete: 'CASCADE' });
 Account.belongsTo(Bank, {foreignKey: 'bankId', onDelete: 'CASCADE'});
 
 export default Account;
