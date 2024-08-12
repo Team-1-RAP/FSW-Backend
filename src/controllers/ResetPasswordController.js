@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import Account from "../models/account.js";
-import FlagUser from '../models/flagUser.js';
-import Customer from '../models/customer.js';
+import Account from '../models/Accounts.js';
+import FlagUser from '../models/FlagUser.js';
+import Customer from '../models/Customer.js';
 import { Op, Sequelize } from 'sequelize';
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { formatToJakartaTime } from "../utils/dateUtils.js";

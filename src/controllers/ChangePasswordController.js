@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import Customer from '../models/customer.js';
-import FlagUser from '../models/flagUser.js';
-import Account from '../models/account.js';
+import Customer from '../models/Customer.js';
+import FlagUser from '../models/FlagUser.js';
+import Account from '../models/Accounts.js';
 import { formatToJakartaTime } from "../utils/dateUtils.js";
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { generateOTP } from "../utils/generateOtpUtils.js";

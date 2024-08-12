@@ -1,5 +1,5 @@
 import express from 'express';
-import { changePin } from '../controllers/authPinController.js';
+import { changePin } from '../controllers/ResetPinController.js';
 
 const router = express.Router();
 
