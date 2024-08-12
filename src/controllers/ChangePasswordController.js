@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
-import Customer from '../models/Customer.js';
-import FlagUser from '../models/FlagUser.js';
+import Customer from '../models/Customers.js';
+import FlagUser from '../models/FlagUsers.js';
 import Account from '../models/Accounts.js';
 import { formatToJakartaTime } from "../utils/dateUtils.js";
 import { sendOTPEmail } from "../utils/emailUtils.js";
