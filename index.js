@@ -5,6 +5,7 @@ import ResetPasswordRoute from './src/routes/ResetPasswordRoutes.js';
 import ResetPinRoute from './src/routes/ResetPinRoutes.js';
 import BankRoutes from './src/routes/BankRoutes.js';
 import ChangePasswordRoutes from './src/routes/ChangePasswordRoutes.js';
+import RegistCustomerRoutes from './src/routes/RegistCustomerRoutes.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
 
@@ -20,6 +21,7 @@ app.use(ResetPasswordRoute);
 app.use(ResetPinRoute);
 app.use(BankRoutes);
 app.use(ChangePasswordRoutes);
+app.use(RegistCustomerRoutes);
 
 const PORT = process.env.PORT || 5000; 
 app.listen(PORT, () => {
