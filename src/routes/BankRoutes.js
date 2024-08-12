@@ -14,12 +14,6 @@ const router = express.Router();
  *         - bank_id
  *         - recipient_no_account
  *       properties:
- *         user_id:
- *           type: integer
- *           description: The ID of the user
- *         no_account:
- *           type: string
- *           description: The source account number
  *         bank_id:
  *           type: integer
  *           description: The ID of the destination bank
@@ -28,7 +22,7 @@ const router = express.Router();
  *           description: The recipient account number
  *       example:
  *         bank_id: 1
- *         recipient_no_account: "0987654321"
+ *         recipient_no_account: "3538914993402"
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
@@ -40,7 +34,7 @@ const router = express.Router();
  * @swagger
  * tags:
  *   name: Bank Validation
- *   description: Endpoints for bank transfer validation
+ *   description: 
  */
 
 /**
@@ -60,20 +54,6 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 code:
- *                   type: integer
- *                   description: Response code
- *                 message:
- *                   type: string
- *                   description: Response message
- *                 data:
- *                   type: object
- *                   description: Additional data
  */
 
 router.post('/v1/transfer/validation/bank', verifyToken, bankTransferValidation);
