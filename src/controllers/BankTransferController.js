@@ -1,5 +1,5 @@
 import Account from "../models/Accounts.js";
-import Customer from "../models/Customer.js";
+import Customer from "../models/Customers.js";
 import Bank from "../models/Banks.js";
 
 export const bankTransferValidation = async (req, res) => {

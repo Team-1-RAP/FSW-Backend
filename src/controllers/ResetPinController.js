@@ -1,6 +1,6 @@
 import Account from '../models/Accounts.js';
-import FlagUser from '../models/FlagUser.js';
-import Customer from '../models/Customer.js';
+import FlagUser from '../models/FlagUsers.js';
+import Customer from '../models/Customers.js';
 import { formatToJakartaTime } from '../utils/dateUtils.js';
 
 export const changePin = async (req, res) => {
