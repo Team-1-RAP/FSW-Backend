@@ -6,11 +6,11 @@ const options = {
         info: {
             title: 'Simple Bank API - BE FSW',
             version: '1.0.0',
-            description: '[/api/v3/api-docs](https://simplebank.my.id/api/v3/api-docs)',
+            description: '[/api/v3/api-docs](http://localhost:5000/api/v3/api-docs)',
         },
         servers: [
             {
-                url: 'https://simplebank.my.id',
+                url: 'http://localhost:5000',
             },
         ],
         components: {
