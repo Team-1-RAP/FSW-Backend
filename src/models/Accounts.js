@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/config.js";
-import Customer from "./customer.js";
-import Bank from "./bank.js";
+import Customer from "./Customer.js";
+import Bank from "./Bank.js";
 
 const Account = sequelize.define('account', {
     no: {

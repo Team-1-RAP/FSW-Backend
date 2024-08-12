@@ -2,9 +2,9 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import ResetPasswordRoute from './src/routes/ResetPasswordRoutes.js';
-import authRoutes from './src/routes/auth.js';
-import BankRoutes from './src/routes/Bank.js';
-import ChangePasswordRoutes from './src/routes/ChangePassword.js';
+import ResetPinRoute from './src/routes/ResetPinRoutes.js';
+import BankRoutes from './src/routes/BankRoutes.js';
+import ChangePasswordRoutes from './src/routes/ChangePasswordRoutes.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
 
@@ -17,7 +17,7 @@ app.use(cors());
 
 app.use('/api/v3/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(ResetPasswordRoute);
-app.use(authRoutes);
+app.use(ResetPinRoute);
 app.use(BankRoutes);
 app.use(ChangePasswordRoutes);
 
