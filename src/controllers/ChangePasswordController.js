@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
-import Customer from '../models/customer.js';
-import FlagUser from '../models/flagUser.js';
-import Account from '../models/account.js';
+import Customer from '../models/Customers.js';
+import FlagUser from '../models/FlagUsers.js';
+import Account from '../models/Accounts.js';
 import { formatToJakartaTime } from "../utils/dateUtils.js";
 import { sendOTPEmail } from "../utils/emailUtils.js";
-import { generateOTP } from "../controllers/accountController.js";
+import { generateOTP } from "../utils/generateOtpUtils.js";
 
 export const currentPassword = async (req, res) => {
     const { current_password } = req.body;

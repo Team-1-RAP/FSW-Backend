@@ -1,6 +1,6 @@
-import Account from "../models/account.js";
-import Customer from "../models/customer.js";
-import Bank from "../models/bank.js";
+import Account from "../models/Accounts.js";
+import Customer from "../models/Customers.js";
+import Bank from "../models/Banks.js";
 
 export const bankTransferValidation = async (req, res) => {
     const { bank_id, recipient_no_account } = req.body;
