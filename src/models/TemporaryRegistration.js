@@ -91,6 +91,11 @@ const TemporaryRegistration = sequelize.define('temporary_registration', {
     otp_expired_date: {
         type: DataTypes.DATE,
         allowNull: true,
+    },
+    step: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1, 
+        allowNull: false,
     }
 },{
     tableName: 'temporary_registrations',
@@ -98,7 +103,6 @@ const TemporaryRegistration = sequelize.define('temporary_registration', {
 });
 
 TemporaryRegistration.belongsTo(AccountTypes, { foreignKey: 'account_type_id', as: 'accountType' });
-
 TemporaryRegistration.belongsTo(AccountPurposes, { foreignKey: 'purpose_id', as: 'purpose' });
 
 export default TemporaryRegistration;
