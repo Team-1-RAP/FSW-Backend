@@ -34,6 +34,7 @@ export const registrationAccount = async (req, res) => {
             return res.status(400).json({
                 code: 400,
                 message: 'Data cannot be null',
+                status: false,
                 data: null,
             });
         }
@@ -42,6 +43,7 @@ export const registrationAccount = async (req, res) => {
             return res.status(400).json({
                 code: 400,
                 message: 'Invalid email format',
+                status: false,
                 data: null,
             });
         }
@@ -50,6 +52,7 @@ export const registrationAccount = async (req, res) => {
             return res.status(400).json({
                 code: 400,
                 message: 'Invalid username format. It must be 6 characters and cannot contain only numbers',
+                status: false,
                 data: null,
             });
         }
@@ -61,6 +64,7 @@ export const registrationAccount = async (req, res) => {
             return res.status(400).json({
                 code: 400,
                 message: 'Username is already taken',
+                status: false,
                 data: null,
             });
         }
@@ -70,6 +74,7 @@ export const registrationAccount = async (req, res) => {
             return res.status(400).json({
                 code: 400,
                 message: passwordValidation.message,
+                status: false,
                 data: null,
             });
         }
@@ -98,16 +103,17 @@ export const registrationAccount = async (req, res) => {
                 code: 200,
                 message: 'Temporary registration updated',
                 data: {
+                    data_customer: {
+                        email: newRegistration.email,
+                        username: newRegistration.username,
+                    },
                     registration: {
-                        id: existingTempRegist.id,
-                        email: existingTempRegist.email,
-                        username: existingTempRegist.username,
-                        otp_code: existingTempRegist.otp_code,
-                        otp_verified: existingTempRegist.otp_verified,
+                        otp_code: newRegistration.otp_code,
+                        otp_verified: newRegistration.otp_verified,
                         otp_expired_date: otpExpiredFormatted,
-                        step: existingTempRegist.step,
-                        created_at: existingTempRegist.created_at,
-                        updated_at: new Date().toISOString()
+                        step: newRegistration.step,
+                        created_at: newRegistration.created_at,
+                        updated_at: newRegistration.updated_at
                     }
                 },
             });
@@ -130,10 +136,11 @@ export const registrationAccount = async (req, res) => {
                 code: 201,
                 message: 'Temporary registration success created',
                 data: {
-                    registration: {
-                        id: newRegistration.id,
+                    data_customer: {
                         email: newRegistration.email,
                         username: newRegistration.username,
+                    },
+                    registration: {
                         otp_code: newRegistration.otp_code,
                         otp_verified: newRegistration.otp_verified,
                         otp_expired_date: otpExpiredFormatted,
@@ -142,6 +149,89 @@ export const registrationAccount = async (req, res) => {
                         updated_at: newRegistration.updated_at
                     }
                 },
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal server error',
+            error: error.message || 'An unknown error occurred',
+            data: null,
+        });
+    }
+};
+
+export const verifyEmail = async (req, res) => {
+    const { username, otp } = req.body;
+
+    try {
+        if (!username || !otp) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Username and OTP code cannot be empty',
+                status: false,
+                data: null,
+            });
+        }
+
+        const existingTempRegist = await TemporaryRegistration.findOne({ where: { username } });
+
+        if (!existingTempRegist) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Username not found',
+                status: false,
+                data: null,
+            });
+        }
+
+        const { step, otp_code, otp_expired_date } = existingTempRegist;
+
+        if (step !== 1) {
+            return res.status(400).json({
+                code: 400,
+                message: 'Initial registration stage is not completed or failed',
+                status: false,
+                data: null,
+            });
+        }
+
+        const isOtpValid = otp_code === otp && new Date(otp_expired_date) > new Date();
+        
+        if (isOtpValid) {
+            await existingTempRegist.update({
+                otp_verified: true,
+                step: step + 1,
+                updated_at: new Date().toISOString(),
+            });
+
+            const otpExpiredFormatted = formatToJakartaTime(otp_expired_date);
+
+            return res.status(200).json({
+                code: 200,
+                message: 'Email verification successful',
+                data: {
+                    data_customer: {
+                        email: existingTempRegist.email,
+                        username: existingTempRegist.username
+                    },
+                    registration: {
+                        otp_code: existingTempRegist.otp_code,
+                        otp_verified: existingTempRegist.otp_verified,
+                        otp_expired_date: otpExpiredFormatted,
+                        step: existingTempRegist.step,
+                        created_at: existingTempRegist.created_at,
+                        updated_at: existingTempRegist.updated_at,
+                    },
+                },
+            });
+        } else {
+            return res.status(400).json({
+                code: 400,
+                message: 'Invalid or expired OTP code',
+                status: false,
+                data: null,
             });
         }
     } catch (error) {
