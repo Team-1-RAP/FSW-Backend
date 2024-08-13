@@ -54,7 +54,8 @@ export const registrationAccount = async (req, res) => {
         }
 
         const existingCustomer = await Customer.findOne({ where: { username } });
-        if (existingCustomer) {
+        const existingTempRegist = await TemporaryRegistration.findOne({ where: { username }})
+        if (existingCustomer || existingTempRegist) {
             return res.status(400).json({
                 code: 400,
                 message: 'Username is already taken',

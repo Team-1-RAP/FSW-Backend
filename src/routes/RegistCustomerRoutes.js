@@ -49,13 +49,13 @@ const router = express.Router();
  *               properties:
  *                 code:
  *                   type: integer
- *                   description: Kode status
+ *                   description: 
  *                 message:
  *                   type: string
- *                   description: Pesan hasil registrasi
+ *                   description:
  *                 data:
  *                   type: object
- *                   description: Data tambahan dari hasil registrasi
+ *                   description:
  *               example:
  *                 code: 201
  *                 message: "Registration Created"
