@@ -1,12 +1,16 @@
 import bcrypt from 'bcrypt';
+import TemporaryRegistration from '../models/TemporaryRegistration.js';
 import Customer from "../models/Customers.js";
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { generateOTP } from "../utils/generateOtpUtils.js";
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const USERNAME_FORMAT = /^(?!\d+$)[A-Za-z0-9]{6}$/;
 const PASSWORD_FORMAT = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/;
 
 const validateEmail = (email) => EMAIL_FORMAT.test(email);
+
+const validateUsername = (username) => USERNAME_FORMAT.test(username);
 
 const validatePassword = (password, confirmPassword) => {
     if (password !== confirmPassword) {
@@ -22,10 +26,10 @@ const validatePassword = (password, confirmPassword) => {
 };
 
 export const registrationAccount = async (req, res) => {
-    const { email, password, confirmPassword } = req.body;
+    const { email, username, password, confirmPassword } = req.body;
 
     try {
-        if (!email || !password || !confirmPassword) {
+        if (!email || !username || !password || !confirmPassword) {
             return res.status(400).json({
                 code: 400,
                 message: 'Data cannot be null',
@@ -37,6 +41,23 @@ export const registrationAccount = async (req, res) => {
             return res.status(400).json({
                 code: 400,
                 message: 'Invalid email format',
+                data: null,
+            });
+        }
+
+        if (!validateUsername(username)) {
+            return res.status(400).json({
+                code: 400,
+                message: 'Invalid username format. It must be 6 characters and cannot contain only numbers',
+                data: null,
+            });
+        }
+
+        const existingCustomer = await Customer.findOne({ where: { username } });
+        if (existingCustomer) {
+            return res.status(400).json({
+                code: 400,
+                message: 'Username is already taken',
                 data: null,
             });
         }
@@ -53,24 +74,25 @@ export const registrationAccount = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const newCustomer = await Customer.create({
-            email,
-            password: hashedPassword,
-            createdDate: new Date(),  
-            updatedDate: new Date(),  
-            enabled: true,  
-            loginAttempts: 0,  
-        });
-
         const otp = generateOTP();
         const otpExpiry = new Date(Date.now() + 10 * 60 * 1000).toISOString(); 
 
-        await sendOTPEmail(email, otp, newCustomer.fullname || 'Pengguna SimpleBank');
+        const newRegistration = await TemporaryRegistration.create({
+            email,
+            username,
+            password: hashedPassword,
+            otp_code: otp,
+            otp_expired_date: otpExpiry,
+            created_at: new Date(),
+            updated_at: new Date(),
+        });
+
+        await sendOTPEmail(email, otp, username);
 
         return res.status(201).json({
             code: 201,
-            message: 'Account successfully created',
-            data: newCustomer,
+            message: 'Temporary registration success created',
+            data: newRegistration,
         });
 
     } catch (error) {
