@@ -1,5 +1,5 @@
 import express from 'express';
-import { registrationAccount, verifyEmail } from '../controllers/RegistCustomerController.js';
+import { registrationAccount, verifyEmail, accountType } from '../controllers/RegistCustomerController.js';
 
 const router = express.Router();
 
@@ -99,7 +99,46 @@ const router = express.Router();
  *                   description: 
  */
 
+/**
+ * @swagger
+ * /v1/registration/customer/account-type:
+ *   post:
+ *     tags: [Registration Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: ista12
+ *               accountTypeId:
+ *                 type: integer
+ *                 description: ID of the selected account type
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Account type success selected
+ *                 data:
+ *                   type: object
+ *                   properties:
+ */
+
 router.post('/v1/registration/customer/profile', registrationAccount);
 router.post('/v1/registration/customer/verify-email', verifyEmail);
+router.post('/v1/registration/customer/account-type', accountType);
 
 export default router;
