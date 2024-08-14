@@ -13,21 +13,25 @@ const EMAIL_USER = process.env.EMAIL_USER;
 const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
+const createTransporter = async () => {
+    const accessToken = await oAuth2Client.getAccessToken();
+
+    return nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            type: 'OAuth2',
+            user: EMAIL_USER,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            refreshToken: REFRESH_TOKEN,
+            accessToken: accessToken.token,
+        },
+    });
+};
+
 export const sendOTPEmail = async (email, otp, name) => {
     try {
-        const accessToken = await oAuth2Client.getAccessToken();
-
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                type: 'OAuth2',
-                user: EMAIL_USER,
-                clientId: CLIENT_ID,
-                clientSecret: CLIENT_SECRET,
-                refreshToken: REFRESH_TOKEN,
-                accessToken: accessToken.token,
-            },
-        });
+        const transporter = await createTransporter();
 
         const htmlContent = `
             <!DOCTYPE html>
@@ -82,5 +86,91 @@ export const sendOTPEmail = async (email, otp, name) => {
     } catch (error) {
         console.error('Error sending OTP email:', error);
         throw new Error('Error sending OTP email');
+    }
+};
+
+export const sendEmailConfirmation = async (email, name) => {
+    try {
+        const transporter = await createTransporter();
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body>
+                <div class="content">
+                    <p>Halo, ${name}</p>
+                    <p>Terima kasih telah mengajukan pembukaan rekening di SimpleBank. Kami telah menerima form pengajuan Anda dan saat ini sedang memproses data yang Anda berikan.</p>
+                    <p>Harap tunggu email berikutnya yang akan kami kirimkan segera setelah data Anda berhasil diverifikasi. Proses ini biasanya memerlukan waktu beberapa saat.</p>
+                    <br>
+                    <p>Terima kasih,</p>
+                    <p>Tim SimpleBank</p>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const mailOptions = {
+            from: EMAIL_USER,
+            to: email,
+            subject: 'Konfirmasi Pengajuan Pembukaan Rekening SimpleBank',
+            html: htmlContent,
+        };
+
+        const result = await transporter.sendMail(mailOptions);
+        return result;
+    } catch (error) {
+        console.error('Error sending email confirmation:', error);
+        throw new Error('Error sending email confirmation');
+    }
+};
+
+export const sendCreatePin = async (email, account_no, atm_card_no, name) => {
+    try {
+        const transporter = await createTransporter();
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body>
+                <div class="content">
+                    <p>Halo ${name},</p>
+                    <p>Selamat! Data diri Anda telah berhasil diverifikasi, dan rekening Anda di SimpleBank telah resmi dibuka.</p>
+                    <p>Berikut adalah informasi penting mengenai rekening Anda:</p>
+                    <ul>
+                        <li>Nomor Rekening: ${account_no}</li>
+                        <li>Nomor Kartu: ${atm_card_no}</li>
+                    </ul>
+                    <p>Untuk menjaga keamanan dan kenyamanan dalam bertransaksi, Anda perlu membuat PIN transaksi. Silakan klik tautan di bawah ini untuk melanjutkan proses pembuatan PIN:</p>
+                    <p><a href="[link]">Buat PIN Transaksi Anda</a></p>
+                    <br>
+                    <p>Terima kasih telah memilih SimpleBank. Jika Anda memiliki pertanyaan atau memerlukan bantuan lebih lanjut, jangan ragu untuk menghubungi tim customer service kami melalui email simplebankteams@gmail.com</p>
+                    <br>
+                    <p>Salam hangat,</p>
+                    <p>Tim SimpleBank</p>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const mailOptions = {
+            from: EMAIL_USER,
+            to: email,
+            subject: 'Selamat! Rekening Anda di SimpleBank Telah Dibuka',
+            html: htmlContent,
+        };
+
+        const result = await transporter.sendMail(mailOptions);
+        return result;
+    } catch (error) {
+        console.error('Error sending email confirmation:', error);
+        throw new Error('Error sending email confirmation');
     }
 };
