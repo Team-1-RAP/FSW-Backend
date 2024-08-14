@@ -92,6 +92,31 @@ const Customer = sequelize.define('customer', {
         type: DataTypes.STRING,
         allowNull: true,
         field: 'verify_token'
+    },
+    nik: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        field: 'nik'
+    },
+    address: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'address'
+    },
+    ktpFile: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'ktp_file'
+    },
+    photoFile: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'photo_file'
+    },
+    signatureFile: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'signature_file'
     }
 }, {
     tableName: 'customer',
