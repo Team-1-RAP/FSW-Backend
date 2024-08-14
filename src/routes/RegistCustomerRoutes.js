@@ -76,7 +76,7 @@ const router = express.Router();
  *             properties:
  *               username:
  *                 type: string
- *                 example: johndoe
+ *                 example: ista12
  *               otp:
  *                 type: string
  *                 example: "123456"

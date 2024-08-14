@@ -104,16 +104,16 @@ export const registrationAccount = async (req, res) => {
                 message: 'Temporary registration updated',
                 data: {
                     data_customer: {
-                        email: newRegistration.email,
-                        username: newRegistration.username,
+                        email: existingTempRegist.email,
+                        username: existingTempRegist.username,
                     },
                     registration: {
-                        otp_code: newRegistration.otp_code,
-                        otp_verified: newRegistration.otp_verified,
+                        otp_code: existingTempRegist.otp_code,
+                        otp_verified: existingTempRegist.otp_verified,
                         otp_expired_date: otpExpiredFormatted,
-                        step: newRegistration.step,
-                        created_at: newRegistration.created_at,
-                        updated_at: newRegistration.updated_at
+                        step: existingTempRegist.step,
+                        created_at: existingTempRegist.created_at,
+                        updated_at: existingTempRegist.updated_at
                     }
                 },
             });
@@ -210,7 +210,7 @@ export const verifyEmail = async (req, res) => {
 
             return res.status(200).json({
                 code: 200,
-                message: 'Email verification successful',
+                message: 'Email verification success',
                 data: {
                     data_customer: {
                         email: existingTempRegist.email,
