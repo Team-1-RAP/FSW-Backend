@@ -99,10 +99,31 @@ export const sendEmailConfirmation = async (email, name) => {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 20px;
+                        text-align: left;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: auto;
+                        background: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                    }
+                    p {
+                        color: #555555;
+                        line-height: 1.6;
+                    }
+                </style>
             </head>
             <body>
-                <div class="content">
-                    <p>Halo, ${name}</p>
+                <div class="container">
+                    <p>Halo ${name},</p>
                     <p>Terima kasih telah mengajukan pembukaan rekening di SimpleBank. Kami telah menerima form pengajuan Anda dan saat ini sedang memproses data yang Anda berikan.</p>
                     <p>Harap tunggu email berikutnya yang akan kami kirimkan segera setelah data Anda berhasil diverifikasi. Proses ini biasanya memerlukan waktu beberapa saat.</p>
                     <br>
