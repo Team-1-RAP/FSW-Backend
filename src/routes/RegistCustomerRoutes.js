@@ -1,5 +1,5 @@
 import express from 'express';
-import { registrationAccount, verifyEmail, accountType } from '../controllers/RegistCustomerController.js';
+import { registrationAccount, verifyEmail, accountType, createPin } from '../controllers/RegistCustomerController.js';
 
 const router = express.Router();
 
@@ -137,8 +137,49 @@ const router = express.Router();
  *                   properties:
  */
 
+/**
+ * @swagger
+ * /v1/registration/customer/create-pin:
+ *   post:
+ *     tags: [Registration Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: ista12
+ *               pin:
+ *                 type: string
+ *                 example: "1234"
+ *               confirmPin:
+ *                 type: string
+ *                 example: "1234"
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: PIN successfully created and account created
+ *                 data:
+ *                   type: object
+ *                   description: 
+ */
+
 router.post('/v1/registration/customer/profile', registrationAccount);
 router.post('/v1/registration/customer/verify-email', verifyEmail);
 router.post('/v1/registration/customer/account-type', accountType);
+router.post('/v1/registration/customer/create-pin', createPin);
 
 export default router;

@@ -28,12 +28,14 @@ const Customer = sequelize.define('customer', {
     notExpired: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        field: 'not_expired'
+        field: 'not_expired',
+        defaultValue: true
     },
     notLocked: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        field: 'not_locked'
+        field: 'not_locked',
+        defaultValue: true
     },
     bornDate: {
         type: DataTypes.DATE,
@@ -43,7 +45,8 @@ const Customer = sequelize.define('customer', {
     credentialNotExpired: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        field: 'credential_not_expired'
+        field: 'credential_not_expired',
+        defaultValue: true
     },
     email: {
         type: DataTypes.STRING,
@@ -54,7 +57,8 @@ const Customer = sequelize.define('customer', {
     enabled: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'enabled'
+        field: 'enabled',
+        defaultValue: true
     },
     expiredVerifyToken: {
         type: DataTypes.DATE,
@@ -69,7 +73,8 @@ const Customer = sequelize.define('customer', {
     loginAttempts: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'login_attempts'
+        field: 'login_attempts',
+        defaultValue: 0
     },
     password: {
         type: DataTypes.STRING,

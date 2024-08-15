@@ -1,14 +1,17 @@
 import bcrypt from 'bcrypt';
 import TemporaryRegistration from '../models/TemporaryRegistration.js';
 import Customer from "../models/Customers.js";
+import Account from '../models/Accounts.js';
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { generateOTP } from "../utils/generateOtpUtils.js";
 import { formatToJakartaTime } from "../utils/dateUtils.js"
 import AccountTypes from '../models/AccountTypes.js';
+import sequelize from '../config/config.js';
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_FORMAT = /^(?!\d+$)[A-Za-z0-9]{6}$/;
 const PASSWORD_FORMAT = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/;
+const PIN_FORMAT = /^[0-9]{6}$/;
 
 const validateEmail = (email) => EMAIL_FORMAT.test(email);
 
@@ -23,6 +26,16 @@ const validatePassword = (password, confirmPassword) => {
     }
     if (!PASSWORD_FORMAT.test(password)) {
         return { valid: false, message: 'Password must contain at least one uppercase letter, one number, and one special character or symbol' };
+    }
+    return { valid: true };
+};
+
+const validatePin = (pin, confirmPin) => {
+    if (pin !== confirmPin) {
+        return { valid: false, message: 'Pin and confirm pin do not match' };
+    }
+    if (!PIN_FORMAT.test(pin)) {
+        return { valid: false, message: 'Pin must be at least 6 digits' };
     }
     return { valid: true };
 };
@@ -337,6 +350,135 @@ export const accountType = async (req, res) => {
         return res.status(500).json({
             code: 500,
             message: 'Internal server error',
+            error: error.message || 'An unknown error occurred',
+            data: null,
+        });
+    }
+};
+
+// formulir data diri disini {save di temporary tabel - parameter yg dibawa: username}
+
+// upload document disini di taruh di cloud storage {save di temporary table - parameter yg dibawa: username}
+
+export const createPin = async (req, res) => {
+    const { username, pin, confirmPin } = req.body;
+
+    try {
+        if (!username || !pin || !confirmPin) {
+            return res.status(400).json({
+                code: 400,
+                message: 'Username, PIN, dan konfirmasi PIN tidak boleh kosong',
+                status: false,
+                data: null,
+            });
+        }
+
+        const tempRegist = await TemporaryRegistration.findOne({ where: { username } });
+
+        if (!tempRegist) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Username not found',
+                status: false,
+                data: null,
+            });
+        }
+
+        const { step, account_type_id } = tempRegist;
+
+        if (step < 5) {
+            return res.status(400).json({
+                code: 400,
+                message: 'Previous steps not completed',
+                status: false,
+                data: null,
+            });
+        }
+
+        if (!validatePin(pin)) {
+            return res.status(400).json({
+                code: 400,
+                message: 'Invalid pin format',
+                status: false,
+                data: null,
+            });
+        }
+
+        const accountType = await AccountTypes.findOne({ where: { id: account_type_id } });
+
+        if (!accountType) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Account type not found',
+                status: false,
+                data: null,
+            });
+        }
+
+        const accountTypeName = accountType.type;
+
+        const transaction = await sequelize.transaction();
+
+        try {
+            const newCustomer = await Customer.create({
+                fullname: tempRegist.fullname,
+                username: tempRegist.username,
+                password: tempRegist.password,
+                email: tempRegist.email,
+                phoneNumber: tempRegist.phone_number,
+                nik: tempRegist.nik,
+                bornDate: tempRegist.born_date,
+                address: tempRegist.address,
+                ktpFile: tempRegist.ktp_document,
+                photoFile: tempRegist.photo_document,
+                signatureFile: tempRegist.signature_document,
+                createdDate: new Date(),
+                updatedDate: new Date(),
+            }, { transaction });
+
+            await Account.create({
+                no: tempRegist.no_account,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                accountTypeName: accountTypeName,
+                atm_card_no: tempRegist.atm_card,
+                expDate: new Date(new Date().setFullYear(new Date().getFullYear() + 5)),
+                createdDate: new Date(),
+                updatedDate: new Date(),
+                bankId: 1,
+                userId: newCustomer.id,
+                pin,
+                accountTypeId: tempRegist.account_type_id,
+                accountPurposeId: tempRegist.purpose_id,
+            }, { transaction });
+
+            await TemporaryRegistration.destroy({ where: { id: tempRegist.id }, transaction });
+
+            await transaction.commit();
+
+            return res.status(200).json({
+                code: 200,
+                message: 'Pin success created, please login with your username and password',
+                status: true,
+                data: null,
+            });
+
+        } catch (error) {
+            await transaction.rollback();
+            console.error('Error during account creation:', error);
+            return res.status(500).json({
+                code: 500,
+                message: 'Internal Server Error',
+                error: error.message || 'An unknown error occurred',
+                data: null,
+            });
+        }
+
+    } catch (error) {
+        console.error('Error during PIN creation:', error);
+        return res.status(500).json({
+            code: 500,
+            message: 'Internal Server Error',
             error: error.message || 'An unknown error occurred',
             data: null,
         });

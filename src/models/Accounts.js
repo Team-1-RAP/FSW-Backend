@@ -35,7 +35,8 @@ const Account = sequelize.define('account', {
     balance: {
         type: DataTypes.FLOAT,
         allowNull: false,
-        field: 'balance'
+        field: 'balance',
+        defaultValue: 50000
     },
     atm_card_no: {
         type: DataTypes.STRING(100),
@@ -65,7 +66,8 @@ const Account = sequelize.define('account', {
     pin_attempts: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'pin_attempts'
+        field: 'pin_attempts',
+        defaultValue: 0
     },
     accountTypeId: { 
         type: DataTypes.INTEGER,
