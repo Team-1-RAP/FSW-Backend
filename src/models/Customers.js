@@ -51,7 +51,6 @@ const Customer = sequelize.define('customer', {
     email: {
         type: DataTypes.STRING,
         allowNull: true,
-        unique: 'uk_dwk6cx0afu8bs9o4t536v1j5v',
         field: 'email'
     },
     enabled: {
