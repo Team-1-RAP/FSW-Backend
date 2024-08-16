@@ -6,6 +6,7 @@ import { Op, Sequelize } from 'sequelize';
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { formatToJakartaTime } from "../utils/dateUtils.js";
 import { generateOTP } from "../utils/generateOtpUtils.js";
+import { validatePassword } from "../utils/validationUtils.js";
 
 export const validateCard = async (req, res) => {
     const { atm_card_no, expMonth, expYear } = req.body;
@@ -407,13 +408,15 @@ export const verifyOtp = async (req, res) => {
 export const changePassword = async (req, res) => {
     const { atm_card_no, password, confirmPassword } = req.body;
 
-    if (password !== confirmPassword) {
-        return res.status(400).json({ 
-            code: 400,
-            message: 'Passwords does not match',
-            data: null 
-        });
-    }
+    const passwordValidation = validatePassword(password, confirmPassword);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({
+                code: 400,
+                message: passwordValidation.message,
+                status: false,
+                data: null,
+            });
+        }
 
     try {
         const account = await Account.findOne({ where: { atm_card_no: atm_card_no } });
