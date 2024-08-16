@@ -55,7 +55,7 @@ export const validateCard = async (req, res) => {
                 data: {
                     atm_card_no: account.atm_card_no,
                     account_no: account.no,
-                    account_type: account.accountType,
+                    account_type: account.accountTypeName,
                     balance: account.balance,
                     exp_date: account.expDate,
                     flag_user: {
@@ -155,7 +155,7 @@ export const validateBirthDate = async (req, res) => {
                     atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
-                    account_type: account.accountType,
+                    account_type: account.accountTypeName,
                     balance: account.balance,
                     customer_data: {
                         id: customer.id,
@@ -264,7 +264,7 @@ export const validateEmail = async (req, res) => {
                     atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
-                    account_type: account.accountType,
+                    account_type: account.accountTypeName,
                     balance: account.balance,
                     customer_data: {
                         id: customer.id,
@@ -362,7 +362,7 @@ export const verifyOtp = async (req, res) => {
                     atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
-                    account_type: account.accountType,
+                    account_type: account.accountTypeName,
                     balance: account.balance,
                     customer_data: {
                         id: customer.id,
@@ -461,7 +461,7 @@ export const changePassword = async (req, res) => {
                 atm_card_no: account.atm_card_no,
                 account_no: account.no,
                 customer_id: customer.id,
-                account_type: account.accountType,
+                account_type: account.accountTypeName,
                 balance: account.balance,
                 customer_data: {
                     id: customer.id,
@@ -576,7 +576,7 @@ export const validatePin = async (req, res) => {
                 account_no: account.no,
                 pin: account.pin,
                 customer_id: customer.id,
-                account_type: account.accountType,
+                account_type: account.accountTypeName,
                 balance: account.balance,
                 customer_data: {
                     id: customer.id,
