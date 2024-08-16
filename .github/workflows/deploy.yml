@@ -27,12 +27,13 @@ jobs:
         HOST: ${{ secrets.HOST }}
         USER: ${{ secrets.USER }}
       run: |
+        set -x
         ssh -i "$SSH_PRIVATE_KEY" "$USER@$HOST" << 'EOF'
-          cd ~/FSW-Backend
-          git pull origin development
-          yarn install
-          pm2 restart all
-          sudo systemctl reload nginx
+          cd ~/FSW-Backend || exit 1
+          git pull origin development || exit 1
+          yarn install || exit 1
+          pm2 restart all || exit 1
+          sudo systemctl reload nginx || exit 1
         EOF
 
     - name: Notify Success
