@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.12.0'
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Deploy to Server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        HOST: ${{ secrets.HOST }}
+        USER: ${{ secrets.USER }}
+      run: |
+        ssh -i "$SSH_PRIVATE_KEY" "$USER@$HOST" << 'EOF'
+          cd ~/FSW-Backend
+          git pull origin development
+          yarn install
+          pm2 restart all
+          sudo systemctl reload nginx
+        EOF
+
+    - name: Notify Success
+      if: success()
+      run: echo "Deployment successful!"
+
+    - name: Notify Failure
+      if: failure()
+      run: echo "Deployment failed!"
