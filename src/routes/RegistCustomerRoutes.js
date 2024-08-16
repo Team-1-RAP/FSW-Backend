@@ -64,7 +64,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/registration/customer/verify-email:
+ * /v1/registration/customer/verifyEmail:
  *   post:
  *     tags: [Registration Customer]
  *     requestBody:
@@ -101,7 +101,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/registration/customer/account-type:
+ * /v1/registration/customer/accountType:
  *   post:
  *     tags: [Registration Customer]
  *     requestBody:
@@ -139,7 +139,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/registration/customer/create-pin:
+ * /v1/registration/customer/createPin:
  *   post:
  *     tags: [Registration Customer]
  *     requestBody:
@@ -178,8 +178,8 @@ const router = express.Router();
  */
 
 router.post('/v1/registration/customer/profile', registrationAccount);
-router.post('/v1/registration/customer/verify-email', verifyEmail);
-router.post('/v1/registration/customer/account-type', accountType);
-router.post('/v1/registration/customer/create-pin', createPin);
+router.post('/v1/registration/customer/verifyEmail', verifyEmail);
+router.post('/v1/registration/customer/accountType', accountType);
+router.post('/v1/registration/customer/createPin', createPin);
 
 export default router;

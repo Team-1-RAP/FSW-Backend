@@ -364,10 +364,11 @@ export const createPin = async (req, res) => {
             });
         }
 
-        if (!validatePin(pin)) {
+        const pinValidation = validatePin(pin, confirmPin);
+        if (!pinValidation.valid) {
             return res.status(400).json({
                 code: 400,
-                message: 'Invalid pin format',
+                message: pinValidation.message,
                 status: false,
                 data: null,
             });
