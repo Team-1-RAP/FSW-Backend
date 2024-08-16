@@ -154,10 +154,10 @@ const router = express.Router();
  *                 example: ista12
  *               pin:
  *                 type: string
- *                 example: "1234"
+ *                 example: "123456"
  *               confirmPin:
  *                 type: string
- *                 example: "1234"
+ *                 example: "123456"
  *     responses:
  *       200:
  *         description: OK
