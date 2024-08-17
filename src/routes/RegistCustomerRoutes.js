@@ -139,9 +139,16 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/registration/customer/createPin:
+ * /v1/registration/customer/createPin/{username}:
  *   post:
  *     tags: [Registration Customer]
+ *     summary: 
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -149,9 +156,6 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               username:
- *                 type: string
- *                 example: ista12
  *               pin:
  *                 type: string
  *                 example: "123456"
@@ -171,7 +175,7 @@ const router = express.Router();
  *                   example: 200
  *                 message:
  *                   type: string
- *                   example: PIN successfully created and account created
+ *                   example: OK
  *                 data:
  *                   type: object
  *                   description: 
@@ -180,6 +184,6 @@ const router = express.Router();
 router.post('/v1/registration/customer/profile', registrationAccount);
 router.post('/v1/registration/customer/verifyEmail', verifyEmail);
 router.post('/v1/registration/customer/accountType', accountType);
-router.post('/v1/registration/customer/createPin', createPin);
+router.post('/v1/registration/customer/createPin/:username', createPin);
 
 export default router;

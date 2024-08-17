@@ -330,7 +330,8 @@ export const accountType = async (req, res) => {
 // upload document disini di taruh di cloud storage {save di temporary table - parameter yg dibawa: username}
 
 export const createPin = async (req, res) => {
-    const { username, pin, confirmPin } = req.body;
+    const { pin, confirmPin } = req.body;
+    const { username } = req.params;
 
     try {
         if (!username || !pin || !confirmPin) {
