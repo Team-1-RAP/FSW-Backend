@@ -40,7 +40,6 @@ jobs:
           git pull origin development || { echo "Failed to pull from Git"; exit 1; }
           yarn install || { echo "Failed to install dependencies"; exit 1; }
           pm2 restart all || { echo "Failed to restart PM2"; exit 1; }
-          sudo systemctl reload nginx || { echo "Failed to reload Nginx"; exit 1; }
         EOF
 
     - name: Notify Success
