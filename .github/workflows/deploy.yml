@@ -29,13 +29,9 @@ jobs:
       run: |
         set -x
         mkdir -p ~/.ssh
-
-        # Simpan private key ke file
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-
         ssh-keyscan $HOST >> ~/.ssh/known_hosts
-
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER@$HOST" << 'EOF'
           cd ~/FSW-Backend || exit 1
           git pull origin development || exit 1
