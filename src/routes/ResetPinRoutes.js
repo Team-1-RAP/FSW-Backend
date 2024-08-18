@@ -1,6 +1,12 @@
 import express from "express";
 import { changePin } from "../controllers/ResetPinController.js";
 import { verifyToken } from "../middleware/VerifyToken.js";
+import {
+  validateCard,
+  validateBirthDate,
+  validateEmail,
+  verifyOtp,
+} from "../controllers/ResetPasswordController.js";
 
 const router = express.Router();
 
@@ -52,10 +58,13 @@ const router = express.Router();
  *                   type: object
  */
 
-<<<<<<< HEAD
+router.post("/v1/reset/pin/validation/card", verifyToken, validateCard);
+router.post(
+  "/v1/reset/pin/validation/birthDate",
+  verifyToken,
+  validateBirthDate
+);
+router.post("/v1/reset/pin/validation/email", verifyToken, validateEmail);
+router.post("/v1/reset/pin/validation/otpVerify", verifyToken, verifyOtp);
 router.post("/v1/reset/pin/validation/changePin", verifyToken, changePin);
 export default router;
-=======
-router.post('/v1/reset/pin/validation/changePin', changePin);
-export default router;
->>>>>>> 34cab6baa800587d9acbbfc8de17eb022ee5cd50
