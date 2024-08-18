@@ -1,5 +1,6 @@
-import express from 'express';
-import { changePin } from '../controllers/ResetPinController.js';
+import express from "express";
+import { changePin } from "../controllers/ResetPinController.js";
+import { verifyToken } from "../middleware/VerifyToken.js";
 
 const router = express.Router();
 
@@ -50,6 +51,5 @@ const router = express.Router();
  *               properties:
  */
 
-
-router.post('/v1/reset/pin/validation/changePin', changePin);
+router.post("/v1/reset/pin/validation/changePin", verifyToken, changePin);
 export default router;
