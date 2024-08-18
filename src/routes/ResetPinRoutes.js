@@ -6,50 +6,56 @@ const router = express.Router();
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     ChangePin:
- *       type: object
- *       required:
- *         - atm_card_no
- *         - newPin
- *       properties:
- *         atm_card_no:
- *           type: string
- *           description: The account number of the user
- *         pin:
- *           type: string
- *           description: The new pin of the user
- *         confirmPin:
- *           type: string
- *           description: The confirmation new pin of the user
- *       example:
- *         atm_card_no: '123456789'
- *         pin: '123654'
- *         confirmPin: '123654'
+ * tags:
+ *   name: Reset Pin
+ *   description:
  */
 
 /**
  * @swagger
  * /v1/reset/pin/validation/changePin:
  *   post:
- *     summary:
  *     tags: [Reset Pin]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ChangePin'
+ *             type: object
+ *             properties:
+ *               atm_card_no:
+ *                 type: string
+ *                 description: The account number of the user
+ *               pin:
+ *                 type: string
+ *                 description: The new PIN for the user
+ *               confirmPin:
+ *                 type: string
+ *                 description: Confirmation of the new PIN
+ *             example:
+ *               atm_card_no: '123456789'
+ *               pin: '123654'
+ *               confirmPin: '123654'
  *     responses:
  *       200:
- *         description: Pin change successful
+ *         description: OK
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
+ *                 code:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
  */
 
+<<<<<<< HEAD
 router.post("/v1/reset/pin/validation/changePin", verifyToken, changePin);
 export default router;
+=======
+router.post('/v1/reset/pin/validation/changePin', changePin);
+export default router;
+>>>>>>> 34cab6baa800587d9acbbfc8de17eb022ee5cd50

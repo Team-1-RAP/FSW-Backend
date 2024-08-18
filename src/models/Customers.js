@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/config.js";
-import Role from "./Role.js";
+import Role from "./Roles.js";
 
 const Customer = sequelize.define('customer', {
     id: {
@@ -28,12 +28,14 @@ const Customer = sequelize.define('customer', {
     notExpired: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        field: 'not_expired'
+        field: 'not_expired',
+        defaultValue: true
     },
     notLocked: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        field: 'not_locked'
+        field: 'not_locked',
+        defaultValue: true
     },
     bornDate: {
         type: DataTypes.DATE,
@@ -43,18 +45,19 @@ const Customer = sequelize.define('customer', {
     credentialNotExpired: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        field: 'credential_not_expired'
+        field: 'credential_not_expired',
+        defaultValue: true
     },
     email: {
         type: DataTypes.STRING,
         allowNull: true,
-        unique: 'uk_dwk6cx0afu8bs9o4t536v1j5v',
         field: 'email'
     },
     enabled: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'enabled'
+        field: 'enabled',
+        defaultValue: true
     },
     expiredVerifyToken: {
         type: DataTypes.DATE,
@@ -69,7 +72,8 @@ const Customer = sequelize.define('customer', {
     loginAttempts: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'login_attempts'
+        field: 'login_attempts',
+        defaultValue: 0
     },
     password: {
         type: DataTypes.STRING,
@@ -92,6 +96,31 @@ const Customer = sequelize.define('customer', {
         type: DataTypes.STRING,
         allowNull: true,
         field: 'verify_token'
+    },
+    nik: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        field: 'nik'
+    },
+    address: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'address'
+    },
+    ktpFile: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'ktp_file'
+    },
+    photoFile: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'photo_file'
+    },
+    signatureFile: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        field: 'signature_file'
     }
 }, {
     tableName: 'customer',

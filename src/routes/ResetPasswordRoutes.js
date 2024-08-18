@@ -5,143 +5,6 @@ const router = express.Router();
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     CardValidation:
- *       type: object
- *       required:
- *         - atm_card_no
- *         - card_number
- *       properties:
- *         atm_card_no:
- *           type: string
- *           description: The card number to be validated
- *         expMonth:
- *           type: integer
- *           description: The card month expired
- *         expYear:
- *           type: integer
- *           description: The card year expired
- *       example:
- *         atm_card_no: '123456789'
- *         expMonth: 11
- *         expYear: 2025
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     BirthDateValidation:
- *       type: object
- *       required:
- *         - atm_card_no
- *         - born_date
- *       properties:
- *         atm_card_no:
- *           type: string
- *           description: The card number to be validated
- *         born_date:
- *           type: string
- *           format: date
- *           description: The birth date to be validated
- *       example:
- *         atm_card_no: '123456789'
- *         born_date: '2002-12-29'
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     EmailValidation:
- *       type: object
- *       required:
- *         - atm_card_no
- *         - email
- *       properties:
- *         atm_card_no:
- *           type: string
- *           description: The card number to be validated
- *         email:
- *           type: string
- *           format: email
- *           description: The email to be validated
- *       example:
- *         atm_card_no: '123456789'
- *         email: 'user@gmail.com'
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     OtpVerification:
- *       type: object
- *       required:
- *         - atm_card_no
- *         - otp
- *       properties:
- *         atm_card_no:
- *           type: string
- *           description: The account number of the user
- *         otp:
- *           type: string
- *           description: The OTP to be verified
- *       example:
- *         atm_card_no: '123456789'
- *         otp: '123456'
- */
-
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     ChangePassword:
- *       type: object
- *       required:
- *         - atm_card_no
- *         - newPassword
- *       properties:
- *         atm_card_no:
- *           type: string
- *           description: The account number of the user
- *         password:
- *           type: string
- *           description: The new password of the user
- *         confirmPassword:
- *           type: string
- *           description: The confirmation new password of the user
- *       example:
- *         atm_card_no: '123456789'
- *         password: 'password123'
- *         confirmPassword: 'password123'
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     ValidatePin:
- *       type: object
- *       required:
- *         - atm_card_no
- *         - pin
- *       properties:
- *         atm_card_no:
- *           type: string
- *           description: The account number of the user
- *         pin:
- *           type: string
- *           description: The PIN of the user
- *       example:
- *         atm_card_no: '123456789'
- *         pin: '123456'
- */
-
-/**
- * @swagger
  * tags:
  *   name: Reset Password
  */
@@ -150,14 +13,27 @@ const router = express.Router();
  * @swagger
  * /v1/reset/password/validation/card:
  *   post:
- *     summary: 
  *     tags: [Reset Password]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CardValidation'
+ *             type: object
+ *             properties:
+ *               atm_card_no:
+ *                 type: string
+ *                 description: The card number to be validated
+ *               expMonth:
+ *                 type: integer
+ *                 description: The card expiration month
+ *               expYear:
+ *                 type: integer
+ *                 description: The card expiration year
+ *             example:
+ *               atm_card_no: '123456789'
+ *               expMonth: 11
+ *               expYear: 2025
  *     responses:
  *       200:
  *         description: OK
@@ -166,20 +42,36 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
+ *                 code:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
  */
 
 /**
  * @swagger
  * /v1/reset/password/validation/birthDate:
  *   post:
- *     summary: 
  *     tags: [Reset Password]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/BirthDateValidation'
+ *             type: object
+ *             properties:
+ *               atm_card_no:
+ *                 type: string
+ *                 description: The card number to be validated
+ *               born_date:
+ *                 type: string
+ *                 format: date
+ *                 description: The birth date to be validated
+ *             example:
+ *               atm_card_no: '123456789'
+ *               born_date: '2002-12-29'
  *     responses:
  *       200:
  *         description: Birth date validation successful
@@ -188,21 +80,36 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *       
+ *                 code:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
  */
 
 /**
  * @swagger
  * /v1/reset/password/validation/email:
  *   post:
- *     summary: 
  *     tags: [Reset Password]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/EmailValidation'
+ *             type: object
+ *             properties:
+ *               atm_card_no:
+ *                 type: string
+ *                 description: The card number to be validated
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: The email to be validated
+ *             example:
+ *               atm_card_no: '123456789'
+ *               email: 'user@gmail.com'
  *     responses:
  *       200:
  *         description: Email validation successful
@@ -211,20 +118,35 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
+ *                 code:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
  */
 
 /**
  * @swagger
  * /v1/reset/password/validation/otpVerify:
  *   post:
- *     summary: 
  *     tags: [Reset Password]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/OtpVerification'
+ *             type: object
+ *             properties:
+ *               atm_card_no:
+ *                 type: string
+ *                 description: The card number to be validated
+ *               otp:
+ *                 type: string
+ *                 description: The OTP to be verified
+ *             example:
+ *               atm_card_no: '123456789'
+ *               otp: '123456'
  *     responses:
  *       200:
  *         description: OTP verification successful
@@ -233,21 +155,39 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
+ *                 code:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
  */
-
 
 /**
  * @swagger
  * /v1/reset/password/validation/changePassword:
  *   post:
- *     summary:
  *     tags: [Reset Password]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ChangePassword'
+ *             type: object
+ *             properties:
+ *               atm_card_no:
+ *                 type: string
+ *                 description: The card number to be validated
+ *               password:
+ *                 type: string
+ *                 description: The new password for the user
+ *               confirmPassword:
+ *                 type: string
+ *                 description: Confirmation of the new password
+ *             example:
+ *               atm_card_no: '123456789'
+ *               password: 'password123'
+ *               confirmPassword: 'password123'
  *     responses:
  *       200:
  *         description: Password change successful
@@ -256,28 +196,49 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
+ *                 code:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
  */
 
 /**
  * @swagger
  * /v1/reset/password/validation/pin:
  *   post:
- *     summary:
  *     tags: [Reset Password]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ValidatePin'
+ *             type: object
+ *             properties:
+ *               atm_card_no:
+ *                 type: string
+ *                 description: The card number to be validated
+ *               pin:
+ *                 type: string
+ *                 description: The PIN of the user
+ *             example:
+ *               atm_card_no: '123456789'
+ *               pin: '123456'
  *     responses:
  *       200:
- *         description: Password reset successful
+ *         description: OK
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
+ *                 code:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
  */
 
 router.post('/v1/reset/password/validation/card', validateCard);

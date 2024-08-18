@@ -1,7 +1,9 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/config.js";
-import Customer from "./Customer.js";
-import Bank from "./Bank.js";
+import Customer from "./Customers.js";
+import Bank from "./Banks.js";
+import AccountTypes from "./AccountTypes.js";
+import AccountPurpose from "./AccountPurpose.js";
 
 const Account = sequelize.define('account', {
     no: {
@@ -25,7 +27,7 @@ const Account = sequelize.define('account', {
         allowNull: false,
         field: 'updated_date'
     },
-    accountType: {
+    accountTypeName: {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'account_type'
@@ -33,7 +35,8 @@ const Account = sequelize.define('account', {
     balance: {
         type: DataTypes.FLOAT,
         allowNull: false,
-        field: 'balance'
+        field: 'balance',
+        defaultValue: 50000
     },
     atm_card_no: {
         type: DataTypes.STRING(100),
@@ -63,8 +66,19 @@ const Account = sequelize.define('account', {
     pin_attempts: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'pin_attempts'
-    }
+        field: 'pin_attempts',
+        defaultValue: 0
+    },
+    accountTypeId: { 
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'account_type_id'
+    },
+    accountPurposeId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'account_purpose_id'
+    },
 }, {
     tableName: 'account',
     timestamps: false,
@@ -72,5 +86,7 @@ const Account = sequelize.define('account', {
 
 Account.belongsTo(Customer, { foreignKey: 'userId', as: 'customer', onDelete: 'CASCADE' });
 Account.belongsTo(Bank, {foreignKey: 'bankId', onDelete: 'CASCADE'});
+Account.belongsTo(AccountTypes, { foreignKey: 'accountTypeId', as: 'accountType', onDelete: 'SET NULL' });
+Account.belongsTo(AccountPurpose, { foreignKey: 'accountPurposeId', as: 'accountPurpose', onDelete: 'SET NULL' });
 
 export default Account;
