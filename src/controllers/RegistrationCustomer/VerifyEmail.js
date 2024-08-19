@@ -27,10 +27,10 @@ export const verifyEmail = async (req, res) => {
 
         const { step, otp_code, otp_expired_date } = existingTempRegist;
 
-        if (step !== 1) {
+        if (step > 1) {
             return res.status(400).json({
                 code: 400,
-                message: 'Initial registration stage is not completed or failed',
+                message: 'Email verification is already completed',
                 status: false,
                 data: null,
             });

@@ -40,7 +40,7 @@ export const accountType = async (req, res) => {
         if (step > 2) {
             return res.status(400).json({
                 code: 400,
-                message: 'Email verification is already completed',
+                message: 'Account type is already selected',
                 status: false,
                 data: null,
             });

@@ -42,6 +42,15 @@ export const uploadImg = async (req, res) => {
             });
         }
 
+        if (step > 4) {
+            return res.status(400).json({
+                code: 400,
+                message: 'Upload data image is already completed',
+                status: false,
+                data: null,
+            });
+        }
+
         if (!req.files || !req.files.ktp_document || !req.files.photo_document || !req.files.signature_document) {
             return res.status(400).json({
                 code: 400,

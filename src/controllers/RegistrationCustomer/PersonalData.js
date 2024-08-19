@@ -95,7 +95,7 @@ export const personalData = async (req, res) => {
 
         return res.status(200).json({
             code: 200,
-            message: 'Account type success selected',
+            message: 'Formulir profile succes updated',
             data: {
                 data_customer: {
                     email: existingTempRegist.email,
