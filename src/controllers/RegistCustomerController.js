@@ -301,8 +301,9 @@ export const accountType = async (req, res) => {
                     username: existingTempRegist.username,
                 },
                 data_account: {
-                    account_code: accountType.code,
-                    account_type: accountType.type,
+                    accountTypeId: accountType.id,
+                    accountTypeCode: accountType.code,
+                    accountTypeName: accountType.type,
                 },
                 registration: {
                     otp_code: existingTempRegist.otp_code,
@@ -428,8 +429,9 @@ export const personalData = async (req, res) => {
                     address: existingTempRegist.address,
                 },
                 data_account: {
-                    account_code: accountType.code,
-                    account_type: accountType.type,
+                    accountTypeId: accountType.id,
+                    accountTypeCode: accountType.code,
+                    accountTypeName: accountType.type,
                     account_purpose_id: accountPurpose.id,
                     account_purpose: accountPurpose.type,
                 },
@@ -572,8 +574,11 @@ export const createPin = async (req, res) => {
                         address: newCustomer.address,
                     },
                     data_account: {
-                        account_code: newAccount.code,
-                        account_type: newAccount.accountTypeName,
+                        account_no: newAccount.no,
+                        atm_card_no: newAccount.atm_card_no,
+                        accountTypeId: newAccount.accountTypeId,
+                        accountTypeCode: newAccount.code,
+                        accountTypeName: newAccount.accountTypeName,
                         account_purpose_id: accountDataPurpose.accountPurpose.id,
                         account_purpose: accountDataPurpose.accountPurpose.type,
                         pin: newAccount.pin,

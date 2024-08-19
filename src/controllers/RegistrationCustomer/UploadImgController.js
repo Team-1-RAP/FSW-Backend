@@ -173,8 +173,10 @@ export const uploadImg = async (req, res) => {
         await sendEmailConfirmation(email, fullname);
 
         setTimeout(async () => {
+            console.log('Sending PIN email now');
             try {
                 await sendCreatePin(email, tempRegist.no_account, tempRegist.atm_card, fullname);
+                console.log('PIN email sent success');
             } catch (emailError) {
                 console.error('Error sending PIN email:', emailError);
             }
@@ -195,8 +197,11 @@ export const uploadImg = async (req, res) => {
                     address: tempRegist.address,
                 },
                 data_account: {
-                    account_code: accountType.code,
-                    account_type: accountType.type,
+                    account_no: tempRegist.no_account,
+                    atm_card_no: tempRegist.atm_card,
+                    accountTypeId: accountType.id,
+                    accountTypeCode: accountType.code,
+                    accountTypeName: accountType.type,
                     account_purpose_id: accountPurpose.id,
                     account_purpose: accountPurpose.type,
                 },
