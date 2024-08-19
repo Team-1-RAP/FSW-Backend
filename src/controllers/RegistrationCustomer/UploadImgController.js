@@ -1,5 +1,9 @@
 import cloudinary from '../../config/cloudinary.js';
 import TemporaryRegistration from '../../models/TemporaryRegistration.js';
+import Account from '../../models/Accounts.js';
+import { sendEmailConfirmation, sendCreatePin } from '../../utils/emailUtils.js';
+import { Op } from 'sequelize'; 
+import AccountTypes from '../../models/AccountTypes.js';
 
 export const uploadImg = async (req, res) => {
     try {
@@ -24,7 +28,7 @@ export const uploadImg = async (req, res) => {
             });
         }
 
-        const { step } = tempRegist;
+        const { step, account_type_id, email, fullname } = tempRegist;
 
         if (step < 4) {
             return res.status(400).json({
@@ -77,26 +81,87 @@ export const uploadImg = async (req, res) => {
             ).end(req.files.signature_document[0].buffer);
         });
 
-        // Update TemporaryRegistration 
-        const updatedRegistration = await TemporaryRegistration.update({
+        const accountType = await AccountTypes.findOne({ where: { id: account_type_id } });
+        if (!accountType) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Account type not found',
+                status: false,
+                data: null,
+            });
+        }
+
+        const bankCode = '01';
+        const accountTypeCode = accountType.code;
+
+        // Get last account number
+        const lastAccount = await Account.findOne({
+            order: [['no', 'DESC']],
+        });
+
+        let serialNumber = '000001';
+
+        if (lastAccount) {
+            const lastSerial = parseInt(lastAccount.no.slice(-6));
+            serialNumber = String(lastSerial + 1).padStart(6, '0');
+        }
+
+        const accountNumber = `${bankCode}${accountTypeCode}${serialNumber}`;
+
+        const lastCard = await Account.findOne({
+            where: {
+                atm_card_no: {
+                    [Op.like]: '51%' 
+                }
+            },
+            order: [['atm_card_no', 'DESC']],
+        });
+
+        let cardPrefix = '510001'; 
+
+        if (lastCard) {
+            const lastCardPrefix = parseInt(lastCard.atm_card_no.slice(0, 6));
+            cardPrefix = String(lastCardPrefix + 1).padStart(6, '0');
+        }
+
+        // Generate a unique 10-digit
+        const uniqueNumber = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
+        const cardNumber = `${cardPrefix}${uniqueNumber}`;
+        
+        const existingCard = await Account.findOne({ where: { atm_card_no: cardNumber } });
+        if (existingCard) {
+            return res.status(400).json({
+                code: 400,
+                message: 'Generated card number is not unique, please try again',
+                status: false,
+                data: null,
+            });
+        }
+
+        const [updatedCount] = await TemporaryRegistration.update({
+            no_account: accountNumber,
+            atm_card: cardNumber,
             ktp_document: ktpUploadResult.secure_url,
             photo_document: photoUploadResult.secure_url,
-            signature_document: signatureUploadResult.secure_url
+            signature_document: signatureUploadResult.secure_url,
+            step: tempRegist.step + 1
         }, {
             where: { username }
         });
 
-        if (updatedRegistration[0] === 0) {
-            return res.status(404).json({
-                code: 404,
-                message: 'Username not found',
-                data: null
-            });
-        }
+        await sendEmailConfirmation(email, fullname);
+
+        setTimeout(async () => {
+            try {
+                await sendCreatePin(email, tempRegist.no_account, tempRegist.atm_card, fullname);
+            } catch (emailError) {
+                console.error('Error sending PIN email:', emailError);
+            }
+        }, 300000);
 
         return res.status(200).json({
             code: 200,
-            message: 'Files uploaded successfully',
+            message: 'Files uploaded success',
             data: {
                 ktp_url: ktpUploadResult.secure_url,
                 photo_url: photoUploadResult.secure_url,
