@@ -1,5 +1,6 @@
 import TemporaryRegistration from '../../models/TemporaryRegistration.js';
-import { formatToJakartaTime } from "../../utils/dateUtils.js"
+import { formatToJakartaTime } from '../../utils/dateUtils.js';
+import { sendResponse } from '../../helpers/responseHelper.js';
 import AccountTypes from '../../models/AccountTypes.js';
 
 export const accountType = async (req, res) => {
@@ -7,54 +8,29 @@ export const accountType = async (req, res) => {
 
     try {
         if (!username || !accountTypeId) {
-            return res.status(400).json({
-                code: 400,
-                message: 'Username and type of account cannot be empty',
-                status: false,
-                data: null,
-            });
+            return sendResponse(res, 400, 'Username and type of account cannot be empty');
         }
 
         const existingTempRegist = await TemporaryRegistration.findOne({ where: { username } });
 
         if (!existingTempRegist) {
-            return res.status(404).json({
-                code: 404,
-                message: 'Username not found',
-                status: false,
-                data: null,
-            });
+            return sendResponse(res, 404, 'Username not found');
         }
-        // tes
+
         const { step } = existingTempRegist;
 
         if (step < 2) {
-            return res.status(400).json({
-                code: 400,
-                message: 'Previous steps not completed',
-                status: false,
-                data: null,
-            });
+            return sendResponse(res, 400, 'Previous steps not completed');
         }
 
         if (step > 2) {
-            return res.status(400).json({
-                code: 400,
-                message: 'Account type is already selected',
-                status: false,
-                data: null,
-            });
+            return sendResponse(res, 400, 'Account type is already selected');
         }
 
         const accountType = await AccountTypes.findOne({ where: { id: accountTypeId } });
-        
+
         if (!accountType) {
-            return res.status(404).json({
-                code: 404,
-                message: 'Account type not found',
-                status: false,
-                data: null,
-            });
+            return sendResponse(res, 404, 'Account type not found');
         }
 
         await existingTempRegist.update({
@@ -65,37 +41,28 @@ export const accountType = async (req, res) => {
 
         const otpExpiredFormatted = formatToJakartaTime(existingTempRegist.otp_expired_date);
 
-        return res.status(200).json({
-            code: 200,
-            message: 'Account type success selected',
-            data: {
-                data_customer: {
-                    email: existingTempRegist.email,
-                    username: existingTempRegist.username,
-                },
-                data_account: {
-                    accountTypeId: accountType.id,
-                    accountTypeCode: accountType.code,
-                    accountTypeName: accountType.type,
-                },
-                registration: {
-                    otp_code: existingTempRegist.otp_code,
-                    otp_verified: existingTempRegist.otp_verified,
-                    otp_expired_date: otpExpiredFormatted,
-                    step: existingTempRegist.step,
-                    created_at: existingTempRegist.created_at,
-                    updated_at: existingTempRegist.updated_at,
-                },
+        return sendResponse(res, 200, 'Account type success selected', {
+            data_customer: {
+                email: existingTempRegist.email,
+                username: existingTempRegist.username,
             },
-        });
+            data_account: {
+                accountTypeId: accountType.id,
+                accountTypeCode: accountType.code,
+                accountTypeName: accountType.type,
+            },
+            registration: {
+                otp_code: existingTempRegist.otp_code,
+                otp_verified: existingTempRegist.otp_verified,
+                otp_expired_date: otpExpiredFormatted,
+                step: existingTempRegist.step,
+                created_at: existingTempRegist.created_at,
+                updated_at: existingTempRegist.updated_at,
+            },
+        }, true);
 
     } catch (error) {
         console.error('Error during account type selection:', error);
-        return res.status(500).json({
-            code: 500,
-            message: 'Internal server error',
-            error: error.message || 'An unknown error occurred',
-            data: null,
-        });
+        return sendResponse(res, 500, 'Internal server error', { error: error.message });
     }
 };
