@@ -1,9 +1,12 @@
 import cloudinary from '../../config/cloudinary.js';
 import TemporaryRegistration from '../../models/TemporaryRegistration.js';
 import Account from '../../models/Accounts.js';
-import { sendEmailConfirmation, sendCreatePin } from '../../utils/emailUtils.js';
-import { Op } from 'sequelize'; 
 import AccountTypes from '../../models/AccountTypes.js';
+import AccountPurpose from '../../models/AccountPurpose.js';
+import { sendEmailConfirmation, sendCreatePin } from '../../utils/emailUtils.js';
+import { formatToJakartaTime } from '../../utils/dateUtils.js';
+import { Op } from 'sequelize'; 
+
 
 export const uploadImg = async (req, res) => {
     try {
@@ -28,7 +31,7 @@ export const uploadImg = async (req, res) => {
             });
         }
 
-        const { step, account_type_id, email, fullname } = tempRegist;
+        const { step, email, fullname } = tempRegist;
 
         if (step < 4) {
             return res.status(400).json({
@@ -81,11 +84,21 @@ export const uploadImg = async (req, res) => {
             ).end(req.files.signature_document[0].buffer);
         });
 
-        const accountType = await AccountTypes.findOne({ where: { id: account_type_id } });
+        const accountType = await AccountTypes.findOne({ where: { id: tempRegist.account_type_id } });
         if (!accountType) {
             return res.status(404).json({
                 code: 404,
                 message: 'Account type not found',
+                status: false,
+                data: null,
+            });
+        }
+
+        const accountPurpose = await AccountPurpose.findOne({ where: { id: tempRegist.purpose_id } });
+        if (!accountPurpose) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Account purpose not found',
                 status: false,
                 data: null,
             });
@@ -149,6 +162,14 @@ export const uploadImg = async (req, res) => {
             where: { username }
         });
 
+        if (updatedCount === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Username not found',
+                data: null
+            });
+        }
+
         await sendEmailConfirmation(email, fullname);
 
         setTimeout(async () => {
@@ -159,13 +180,39 @@ export const uploadImg = async (req, res) => {
             }
         }, 300000);
 
+        const otpExpiredFormatted = formatToJakartaTime(tempRegist.otp_expired_date);
+
         return res.status(200).json({
             code: 200,
             message: 'Files uploaded success',
             data: {
-                ktp_url: ktpUploadResult.secure_url,
-                photo_url: photoUploadResult.secure_url,
-                signature_url: signatureUploadResult.secure_url
+                data_customer: {
+                    email: tempRegist.email,
+                    username: tempRegist.username,
+                    fullname: tempRegist.fullname,
+                    nik: tempRegist.nik,
+                    born_date: tempRegist.born_date, 
+                    address: tempRegist.address,
+                },
+                data_account: {
+                    account_code: accountType.code,
+                    account_type: accountType.type,
+                    account_purpose_id: accountPurpose.id,
+                    account_purpose: accountPurpose.type,
+                },
+                document: {
+                    ktp_url: ktpUploadResult.secure_url,
+                    photo_url: photoUploadResult.secure_url,
+                    signature_url: signatureUploadResult.secure_url,
+                },
+                registration: {
+                    otp_code: tempRegist.otp_code,
+                    otp_verified: tempRegist.otp_verified,
+                    otp_expired_date: otpExpiredFormatted,
+                    step: tempRegist.step,
+                    created_at: tempRegist.created_at,
+                    updated_at: tempRegist.updated_at,
+                },
             }
         });
     } catch (error) {

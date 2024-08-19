@@ -392,6 +392,17 @@ export const personalData = async (req, res) => {
             });
         }
 
+        const accountType = await AccountTypes.findOne({ where: { id: existingTempRegist.account_type_id } });
+        
+        if (!accountType) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Account type not found',
+                status: false,
+                data: null,
+            });
+        }
+
         await existingTempRegist.update({
             fullname,
             nik,
@@ -417,6 +428,8 @@ export const personalData = async (req, res) => {
                     address: existingTempRegist.address,
                 },
                 data_account: {
+                    account_code: accountType.code,
+                    account_type: accountType.type,
                     account_purpose_id: accountPurpose.id,
                     account_purpose: accountPurpose.type,
                 },
@@ -520,7 +533,7 @@ export const createPin = async (req, res) => {
                 updatedDate: new Date(),
             }, { transaction });
 
-            await Account.create({
+            const newAccount = await Account.create({
                 no: tempRegist.no_account,
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -531,7 +544,7 @@ export const createPin = async (req, res) => {
                 updatedDate: new Date(),
                 bankId: 1,
                 userId: newCustomer.id,
-                pin,
+                pin: pin,
                 accountTypeId: tempRegist.account_type_id,
                 accountPurposeId: tempRegist.purpose_id,
             }, { transaction });
@@ -540,11 +553,37 @@ export const createPin = async (req, res) => {
 
             await transaction.commit();
 
+            const accountDataPurpose = await Account.findOne({
+                where: { no: newAccount.no },
+                include: [{ model: AccountPurpose, as: 'accountPurpose' }]
+            });
+
             return res.status(200).json({
                 code: 200,
                 message: 'Pin success created, please login with your username and password',
                 status: true,
-                data: null,
+                data: {
+                    data_customer: {
+                        email: newCustomer.email,
+                        username: newCustomer.username,
+                        fullname: newCustomer.fullname,
+                        nik: newCustomer.nik,
+                        born_date: newCustomer.born_date, 
+                        address: newCustomer.address,
+                    },
+                    data_account: {
+                        account_code: newAccount.code,
+                        account_type: newAccount.accountTypeName,
+                        account_purpose_id: accountDataPurpose.accountPurpose.id,
+                        account_purpose: accountDataPurpose.accountPurpose.type,
+                        pin: newAccount.pin,
+                    },
+                    document: {
+                        ktp_url: newCustomer.ktpFile,
+                        photo_url: newCustomer.photoFile,
+                        signature_url: newCustomer.signatureFile,
+                    },
+                }
             });
 
         } catch (error) {
