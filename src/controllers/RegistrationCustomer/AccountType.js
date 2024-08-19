@@ -25,7 +25,7 @@ export const accountType = async (req, res) => {
                 data: null,
             });
         }
-
+        // tes
         const { step } = existingTempRegist;
 
         if (step < 2) {
