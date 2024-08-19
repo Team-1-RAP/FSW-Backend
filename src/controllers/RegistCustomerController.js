@@ -3,6 +3,8 @@ import TemporaryRegistration from '../models/TemporaryRegistration.js';
 import Customer from "../models/Customers.js";
 import Account from '../models/Accounts.js';
 import AccountPurpose from '../models/AccountPurpose.js';
+import OAuthUserRole from '../models/OAuthUserRole.js';
+import Role from '../models/Roles.js';
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { generateOTP } from "../utils/generateOtpUtils.js";
 import { formatToJakartaTime } from "../utils/dateUtils.js"
@@ -410,7 +412,7 @@ export const personalData = async (req, res) => {
             born_date: formattedBornDate,  
             address,
             purpose_id: accountPurpose.id,
-            step: step + 1,
+            step: existingTempRegist.step + 1,
             updated_at: new Date().toISOString(),
         });
 
@@ -524,7 +526,6 @@ export const createPin = async (req, res) => {
                 username: tempRegist.username,
                 password: tempRegist.password,
                 email: tempRegist.email,
-                phoneNumber: tempRegist.phone_number,
                 nik: tempRegist.nik,
                 bornDate: tempRegist.born_date,
                 address: tempRegist.address,
@@ -552,6 +553,21 @@ export const createPin = async (req, res) => {
             }, { transaction });
 
             await TemporaryRegistration.destroy({ where: { id: tempRegist.id }, transaction });
+
+            const rolesToAssign = ['ROLE_USER', 'ROLE_READ', 'ROLE_WRITE']; 
+
+            const roles = await Role.findAll({
+                where: {
+                    name: rolesToAssign
+                }
+            });
+
+            for (const role of roles) {
+                await OAuthUserRole.create({
+                    user_id: newCustomer.id,
+                    role_id: role.id
+                }, { transaction });
+            }
 
             await transaction.commit();
 

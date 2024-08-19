@@ -238,7 +238,7 @@ const upload = multer({
  *                 description: Signature image file (JPG/JPEG)
  *     responses:
  *       200:
- *         description: Files uploaded successfully
+ *         description: Files uploaded success
  *         content:
  *           application/json:
  *             schema:
@@ -249,7 +249,7 @@ const upload = multer({
  *                   example: 200
  *                 message:
  *                   type: string
- *                   example: Files uploaded successfully
+ *                   example: Files uploaded success
  *                 data:
  *                   type: object
  *                   properties:

@@ -20,6 +20,7 @@ const Role = sequelize.define('role', {
     }
 }, {
     tableName: 'oauth_role',
+    timestamps: false,
     uniqueKeys: {
         role_name_and_type: { fields: ['type', 'name']}
     }
