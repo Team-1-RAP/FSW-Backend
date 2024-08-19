@@ -442,9 +442,6 @@ export const personalData = async (req, res) => {
     }
 };
 
-
-// upload document disini di taruh di cloud storage {save di temporary table - parameter yg dibawa: username}
-
 export const createPin = async (req, res) => {
     const { pin, confirmPin } = req.body;
     const { username } = req.params;
@@ -453,7 +450,7 @@ export const createPin = async (req, res) => {
         if (!username || !pin || !confirmPin) {
             return res.status(400).json({
                 code: 400,
-                message: 'Username, PIN, dan konfirmasi PIN tidak boleh kosong',
+                message: 'Username, PIN, and confirm pin cannot be empty',
                 status: false,
                 data: null,
             });

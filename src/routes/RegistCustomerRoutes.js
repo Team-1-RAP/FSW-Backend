@@ -1,7 +1,26 @@
 import express from 'express';
+import multer from 'multer';
 import { registrationAccount, verifyEmail, accountType, personalData, createPin } from '../controllers/RegistCustomerController.js';
+import { uploadImg } from '../controllers/RegistrationCustomer/uploadImgController.js';
+import { multerErrorHandler } from '../middleware/MulterHandlers.js';
 
 const router = express.Router();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+      const allowedTypes = /jpg|jpeg/;
+      const extname = allowedTypes.test(file.mimetype);
+      const mimetype = allowedTypes.test(file.originalname.split('.').pop().toLowerCase());
+      
+      if (extname && mimetype) {
+          cb(null, true);
+      } else {
+          cb(new Error('Format only .jpg and .jpeg'), false);
+      }
+  },
+  limits: { fileSize: 2 * 1024 * 1024 }
+});
 
 /**
  * @swagger
@@ -189,6 +208,64 @@ const router = express.Router();
  *                   description: 
  */
 
+/**
+ * @swagger
+ * /v1/registration/customer/uploadImg:
+ *   post:
+ *     tags: [Registration Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: Username of the user
+ *                 example: "user123"
+ *               ktp_document:
+ *                 type: string
+ *                 format: binary
+ *                 description: KTP image file (JPG/JPEG)
+ *               photo_document:
+ *                 type: string
+ *                 format: binary
+ *                 description: Profile photo (JPG/JPEG)
+ *               signature_document:
+ *                 type: string
+ *                 format: binary
+ *                 description: Signature image file (JPG/JPEG)
+ *     responses:
+ *       200:
+ *         description: Files uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Files uploaded successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     ktp_url:
+ *                       type: string
+ *                       format: uri
+ *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/ktp/ktp_image.jpg"
+ *                     photo_url:
+ *                       type: string
+ *                       format: uri
+ *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/photos/profil_image.jpg"
+ *                     signature_url:
+ *                       type: string
+ *                       format: uri
+ *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/signature/signature_image.jpg"
+ */
 
 /**
  * @swagger
@@ -238,7 +315,12 @@ const router = express.Router();
 router.post('/v1/registration/customer/profile', registrationAccount);
 router.post('/v1/registration/customer/verifyEmail', verifyEmail);
 router.post('/v1/registration/customer/accountType', accountType);
-router.post('/v1/registration/customer/createPin/:username', createPin);
 router.post('/v1/registration/customer/personalData', personalData);
+router.post('/v1/registration/customer/uploadImg', upload.fields([
+    { name: 'ktp_document', maxCount: 1 },
+    { name: 'photo_document', maxCount: 1 },
+    { name: 'signature_document', maxCount: 1 }
+  ]), multerErrorHandler, uploadImg)
+router.post('/v1/registration/customer/createPin/:username', createPin);
 
 export default router;
