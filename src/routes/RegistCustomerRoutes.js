@@ -1,7 +1,11 @@
 import express from 'express';
 import multer from 'multer';
-import { registrationAccount, verifyEmail, accountType, personalData, createPin } from '../controllers/RegistCustomerController.js';
-import { uploadImg } from '../controllers/RegistrationCustomer/uploadImgController.js';
+import { registrationAccount } from '../controllers/RegistrationCustomer/RegistrationAccount.js';
+import { verifyEmail } from '../controllers/RegistrationCustomer/VerifyEmail.js'
+import { accountType } from '../controllers/RegistrationCustomer/AccountType.js';
+import { personalData } from '../controllers/RegistrationCustomer/PersonalData.js';
+import { uploadImg } from '../controllers/RegistrationCustomer/UploadImage.js';
+import { createPin } from '../controllers/RegistrationCustomer/CreatePin.js';
 import { multerErrorHandler } from '../middleware/MulterHandlers.js';
 
 const router = express.Router();
