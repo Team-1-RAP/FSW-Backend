@@ -1,5 +1,5 @@
 import express from 'express';
-import { registrationAccount, verifyEmail, accountType, createPin } from '../controllers/RegistCustomerController.js';
+import { registrationAccount, verifyEmail, accountType, personalData, createPin } from '../controllers/RegistCustomerController.js';
 
 const router = express.Router();
 
@@ -139,6 +139,59 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /v1/registration/customer/personalData:
+ *   post:
+ *     tags: [Registration Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "user123"
+ *               fullname:
+ *                 type: string
+ *                 example: "Jude Belingham"
+ *               nik:
+ *                 type: string
+ *                 example: "1234567890123456"
+ *               born_date:
+ *                 type: string
+ *                 format: date
+ *                 example: "1990-01-01"
+ *               address:
+ *                 type: string
+ *                 description: Alamat pengguna
+ *                 example: "Jl. Jendral Sudirman No. 123"
+ *               accountPurpose_id:
+ *                 type: integer
+ *                 description: ID tujuan akun
+ *                 example: 1
+*     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: OK
+ *                 data:
+ *                   type: object
+ *                   description: 
+ */
+
+
+/**
+ * @swagger
  * /v1/registration/customer/createPin/{username}:
  *   post:
  *     tags: [Registration Customer]
@@ -181,9 +234,11 @@ const router = express.Router();
  *                   description: 
  */
 
+
 router.post('/v1/registration/customer/profile', registrationAccount);
 router.post('/v1/registration/customer/verifyEmail', verifyEmail);
 router.post('/v1/registration/customer/accountType', accountType);
 router.post('/v1/registration/customer/createPin/:username', createPin);
+router.post('/v1/registration/customer/personalData', personalData);
 
 export default router;
