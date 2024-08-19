@@ -180,7 +180,7 @@ const upload = multer({
  *               born_date:
  *                 type: string
  *                 format: date
- *                 example: "1990-01-01"
+ *                 example: "2001-07-03"
  *               address:
  *                 type: string
  *                 description: Alamat pengguna

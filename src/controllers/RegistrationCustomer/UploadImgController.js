@@ -166,6 +166,18 @@ export const uploadImg = async (req, res) => {
             return res.status(404).json({
                 code: 404,
                 message: 'Username not found',
+                status: false,
+                data: null
+            });
+        }
+
+        const updatedTempRegist = await TemporaryRegistration.findOne({ where: { username } });
+
+        if (!updatedTempRegist) {
+            return res.status(404).json({
+                code: 404,
+                message: 'Username not found',
+                status: false,
                 data: null
             });
         }
@@ -175,30 +187,30 @@ export const uploadImg = async (req, res) => {
         setTimeout(async () => {
             console.log('Sending PIN email now');
             try {
-                await sendCreatePin(email, tempRegist.no_account, tempRegist.atm_card, fullname);
+                await sendCreatePin(email, updatedTempRegist.no_account, updatedTempRegist.atm_card, fullname);
                 console.log('PIN email sent success');
             } catch (emailError) {
                 console.error('Error sending PIN email:', emailError);
             }
         }, 300000);
 
-        const otpExpiredFormatted = formatToJakartaTime(tempRegist.otp_expired_date);
+        const otpExpiredFormatted = formatToJakartaTime(updatedTempRegist.otp_expired_date);
 
         return res.status(200).json({
             code: 200,
             message: 'Files uploaded success',
             data: {
                 data_customer: {
-                    email: tempRegist.email,
-                    username: tempRegist.username,
-                    fullname: tempRegist.fullname,
-                    nik: tempRegist.nik,
-                    born_date: tempRegist.born_date, 
-                    address: tempRegist.address,
+                    email: updatedTempRegist.email,
+                    username: updatedTempRegist.username,
+                    fullname: updatedTempRegist.fullname,
+                    nik: updatedTempRegist.nik,
+                    born_date: updatedTempRegist.born_date, 
+                    address: updatedTempRegist.address,
                 },
                 data_account: {
-                    account_no: tempRegist.no_account,
-                    atm_card_no: tempRegist.atm_card,
+                    account_no: updatedTempRegist.no_account,
+                    atm_card_no: updatedTempRegist.atm_card,
                     accountTypeId: accountType.id,
                     accountTypeCode: accountType.code,
                     accountTypeName: accountType.type,
@@ -211,12 +223,12 @@ export const uploadImg = async (req, res) => {
                     signature_url: signatureUploadResult.secure_url,
                 },
                 registration: {
-                    otp_code: tempRegist.otp_code,
-                    otp_verified: tempRegist.otp_verified,
+                    otp_code: updatedTempRegist.otp_code,
+                    otp_verified: updatedTempRegist.otp_verified,
                     otp_expired_date: otpExpiredFormatted,
-                    step: tempRegist.step,
-                    created_at: tempRegist.created_at,
-                    updated_at: tempRegist.updated_at,
+                    step: updatedTempRegist.step,
+                    created_at: updatedTempRegist.created_at,
+                    updated_at: updatedTempRegist.updated_at,
                 },
             }
         });
@@ -225,6 +237,7 @@ export const uploadImg = async (req, res) => {
         return res.status(500).json({
             code: 500,
             message: 'Internal Server Error',
+            status: false,
             error: error.message || 'An unknown error occurred',
             data: null
         });
