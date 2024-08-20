@@ -11,7 +11,7 @@ const OAuthUserRole = sequelize.define('oauth_user_role', {
             model: Customer, 
             key: 'id',
         },
-        field: 'user_id',
+        primaryKey: true 
     },
     role_id: {
         type: DataTypes.BIGINT,
@@ -20,14 +20,14 @@ const OAuthUserRole = sequelize.define('oauth_user_role', {
             model: Role, 
             key: 'id',
         },
-        field: 'role_id',
+        primaryKey: true 
     },
 }, {
-    tableName: 'oauth_role',
+    tableName: 'oauth_user_role',
     timestamps: false,
 });
 
 OAuthUserRole.belongsTo(Customer, { foreignKey: 'user_id', as: 'user' });
 OAuthUserRole.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
 
-export default Role;
+export default OAuthUserRole;

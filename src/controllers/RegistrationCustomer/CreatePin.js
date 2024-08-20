@@ -113,16 +113,18 @@ const createNewAccount = async (tempRegist, accountTypeName, customerId, pin, tr
 };
 
 const assignRolesToCustomer = async (customerId, transaction) => {
-    const rolesToAssign = ['ROLE_USER', 'ROLE_READ', 'ROLE_WRITE']; 
-
     const roles = await Role.findAll({
-        where: { name: rolesToAssign }
+        where: {
+            type: 'user_role'
+        }
     });
+
+    console.log('tess:', roles);
 
     for (const role of roles) {
         await OAuthUserRole.create({
-            user_id: customerId,
-            role_id: role.id
+            user_id: customerId,  
+            role_id: role.id      
         }, { transaction });
     }
 };
