@@ -32,7 +32,7 @@ export const validatePin = (pin, confirmPin) => {
 };
 
 export const validateNik = (nik) => {
-    if (nik.length < 16) {
+    if (nik.length < 16 || nik.length > 16) {
         return { valid: false, message: 'NIK must be at least 16 digit', status: false, data: null };
     }
     if (!NIK_FORMAT.test(nik)) {
