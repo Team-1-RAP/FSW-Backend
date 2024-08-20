@@ -3,46 +3,46 @@ import AccountPurpose from '../../models/AccountPurpose.js';
 import AccountTypes from '../../models/AccountTypes.js';
 import { formatToJakartaTime } from "../../utils/dateUtils.js";
 import { validateNik } from "../../utils/validationUtils.js";
-import { sendResponse } from '../../helpers/responseHelper.js';
+import { sendResponse, sendErrResponse } from '../../helpers/responseHelper.js';
 
 export const personalData = async (req, res) => {
     const { username, fullname, nik, born_date, address, accountPurpose_id } = req.body;
 
     try {
         if (!username || !fullname || !nik || !born_date || !address || !accountPurpose_id) {
-            return sendResponse(res, 400, 'Data cannot be empty');
+            return sendResponse(res, 400, 'Data cannot be null', false, null);
         }
 
         const formattedBornDate = new Date(born_date).toISOString().split('T')[0];
         const existingTempRegist = await TemporaryRegistration.findOne({ where: { username } });
 
         if (!existingTempRegist) {
-            return sendResponse(res, 404, 'Username not found');
+            return sendResponse(res, 404, 'Username not found', false, null);
         }
 
         const { step } = existingTempRegist;
 
         if (step < 3) {
-            return sendResponse(res, 400, 'Previous steps not completed');
+            return sendResponse(res, 400, 'Previous steps not completed', false, null);
         }
 
         if (step > 3) {
-            return sendResponse(res, 400, 'Fromulir personal data is already completed');
+            return sendResponse(res, 400, 'Fromulir personal data is already completed', false, null);
         }
 
         const nikValidation = validateNik(nik);
         if (!nikValidation.valid) {
-            return sendResponse(res, 400, nikValidation.message);
+            return sendResponse(res, 400, nikValidation.message, nikValidation.status, nikValidation.data);
         }
 
         const accountPurpose = await AccountPurpose.findOne({ where: { id: accountPurpose_id } });
         if (!accountPurpose) {
-            return sendResponse(res, 404, 'Account purpose not found');
+            return sendResponse(res, 404, 'Account purpose not found', false, null);
         }
 
         const accountType = await AccountTypes.findOne({ where: { id: existingTempRegist.account_type_id } });
         if (!accountType) {
-            return sendResponse(res, 404, 'Account type not found');
+            return sendResponse(res, 404, 'Account type not found', false, null);
         }
 
         await existingTempRegist.update({
@@ -57,7 +57,7 @@ export const personalData = async (req, res) => {
 
         const otpExpiredFormatted = formatToJakartaTime(existingTempRegist.otp_expired_date);
 
-        return sendResponse(res, 200, 'Formulir profile success updated', {
+        return sendResponse(res, 200, 'Formulir profile success updated', true, {
             data_customer: {
                 email: existingTempRegist.email,
                 username: existingTempRegist.username,
@@ -85,6 +85,6 @@ export const personalData = async (req, res) => {
 
     } catch (error) {
         console.error('Error during personal data submission:', error);
-        return sendResponse(res, 500, 'Internal Server Error', null, error.message);
+        return sendErrResponse(res, 500, 'Internal Server Error', false, error.message);
     }
 };

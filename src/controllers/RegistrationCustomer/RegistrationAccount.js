@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import TemporaryRegistration from '../../models/TemporaryRegistration.js';
 import Customer from "../../models/Customers.js";
-import { sendResponse } from '../../helpers/responseHelper.js';
+import { sendResponse, sendErrResponse } from '../../helpers/responseHelper.js';
 import { sendOTPEmail } from "../../utils/emailUtils.js";
 import { generateOTP } from "../../utils/generateOtpUtils.js";
 import { formatToJakartaTime } from "../../utils/dateUtils.js";
@@ -40,7 +40,7 @@ const processRegistration = async (existingTempRegist, data, res) => {
 
         const otpExpiredFormatted = formatToJakartaTime(otpExpiry);
 
-        return sendResponse(res, 200, 'Temporary registration updated', {
+        return sendResponse(res, 200, 'Temporary registration updated', true, {
             data_customer: {
                 email: existingTempRegist.email,
                 username: existingTempRegist.username,
@@ -69,7 +69,7 @@ const processRegistration = async (existingTempRegist, data, res) => {
 
         const otpExpiredFormatted = formatToJakartaTime(otpExpiry);
 
-        return sendResponse(res, 201, 'Temporary registration success created', {
+        return sendResponse(res, 201, 'Temporary registration success created', true, {
             data_customer: {
                 email: newRegistration.email,
                 username: newRegistration.username,
@@ -92,20 +92,20 @@ export const registrationAccount = async (req, res) => {
     try {
         const validationError = validateRegistrationInput(email, username, password, confirmPassword);
         if (validationError) {
-            return sendResponse(res, 400, validationError);
+            return sendResponse(res, 400, validationError, false, null);
         }
 
         const existingCustomer = await Customer.findOne({ where: { username } });
         const existingTempRegist = await TemporaryRegistration.findOne({ where: { username } });
 
         if (existingCustomer) {
-            return sendResponse(res, 400, 'Username is already taken');
+            return sendResponse(res, 400, 'Username is already taken', false, null);
         }
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // OTP generation
+        // OTP generate
         const otp = generateOTP();
         const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); 
 
@@ -113,6 +113,6 @@ export const registrationAccount = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        return sendResponse(res, 500, 'Internal server error', { error: error.message });
+        return sendResponse(res, 500, 'Internal server error', false, { error: error.message });
     }
 };

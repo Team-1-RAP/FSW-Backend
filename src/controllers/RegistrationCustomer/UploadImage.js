@@ -5,7 +5,7 @@ import AccountTypes from '../../models/AccountTypes.js';
 import AccountPurpose from '../../models/AccountPurpose.js';
 import { sendEmailConfirmation, sendCreatePin } from '../../utils/emailUtils.js';
 import { formatToJakartaTime } from '../../utils/dateUtils.js';
-import { sendResponse } from '../../helpers/responseHelper.js';
+import { sendResponse, sendErrResponse } from '../../helpers/responseHelper.js';
 import { Op } from 'sequelize';
 
 const uploadImage = (file, folder) => {
@@ -57,17 +57,17 @@ const schedulePinEmail = (email, accountNumber, cardNumber, fullname) => {
 export const uploadImg = async (req, res) => {
     try {
         const { username } = req.body;
-        if (!username) return sendResponse(res, 400, 'Username cannot be empty');
+        if (!username) return sendResponse(res, 400, 'Username cannot be empty', false, null);
 
         const tempRegist = await TemporaryRegistration.findOne({ where: { username } });
-        if (!tempRegist) return sendResponse(res, 404, 'Username not found', null, false);
+        if (!tempRegist) return sendResponse(res, 404, 'Username not found', false, null);
 
         const { step, email, fullname } = tempRegist;
-        if (step < 4) return sendResponse(res, 400, 'Previous steps not completed', null, false);
-        if (step > 4) return sendResponse(res, 400, 'Upload data image is already completed', null, false);
+        if (step < 4) return sendResponse(res, 400, 'Previous steps not completed', false, null);
+        if (step > 4) return sendResponse(res, 400, 'Upload data image is already completed', false, null);
 
         if (!req.files || !req.files.ktp_document || !req.files.photo_document || !req.files.signature_document) {
-            return sendResponse(res, 400, 'All data files cannot be empty', null, false);
+            return sendResponse(res, 400, 'All data files cannot be empty', false, null);
         }
 
         const [ktpUploadResult, photoUploadResult, signatureUploadResult] = await Promise.all([
@@ -77,10 +77,10 @@ export const uploadImg = async (req, res) => {
         ]);
 
         const accountType = await AccountTypes.findOne({ where: { id: tempRegist.account_type_id } });
-        if (!accountType) return sendResponse(res, 404, 'Account type not found', null, false);
+        if (!accountType) return sendResponse(res, 404, 'Account type not found', false, null);
 
         const accountPurpose = await AccountPurpose.findOne({ where: { id: tempRegist.purpose_id } });
-        if (!accountPurpose) return sendResponse(res, 404, 'Account purpose not found', null, false);
+        if (!accountPurpose) return sendResponse(res, 404, 'Account purpose not found', false, null);
 
         const accountNumber = await generateAccountNumber(accountType);
         const cardNumber = await generateCardNumber();
@@ -95,14 +95,14 @@ export const uploadImg = async (req, res) => {
         }, { where: { username } });
 
         const updatedTempRegist = await TemporaryRegistration.findOne({ where: { username } });
-        if (!updatedTempRegist) return sendResponse(res, 404, 'Username not found', null, false);
+        if (!updatedTempRegist) return sendResponse(res, 404, 'Username not found', false, null);
 
         await sendEmailConfirmation(email, fullname);
         schedulePinEmail(email, updatedTempRegist.no_account, updatedTempRegist.atm_card, fullname);
 
         const otpExpiredFormatted = formatToJakartaTime(updatedTempRegist.otp_expired_date);
 
-        return sendResponse(res, 200, 'Files uploaded success',{
+        return sendResponse(res, 200, 'Files uploaded success', true, {
             data_customer: {
                 email: updatedTempRegist.email,
                 username: updatedTempRegist.username,
@@ -136,6 +136,6 @@ export const uploadImg = async (req, res) => {
         });
     } catch (error) {
         console.error('Error uploading files:', error);
-        return sendResponse(res, 500, 'Internal Server Error', null, error.message);
+        return sendErrResponse(res, 500, 'Internal Server Error', false, error.message);
     }
 };

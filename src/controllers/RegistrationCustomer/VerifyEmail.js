@@ -1,25 +1,25 @@
 import TemporaryRegistration from '../../models/TemporaryRegistration.js';
 import { formatToJakartaTime } from '../../utils/dateUtils.js';
-import { sendResponse } from '../../helpers/responseHelper.js';
+import { sendResponse, sendErrResponse } from '../../helpers/responseHelper.js';
 
 export const verifyEmail = async (req, res) => {
     const { username, otp } = req.body;
 
     try {
         if (!username || !otp) {
-            return sendResponse(res, 404, 'Username and OTP code cannot be empty');
+            return sendResponse(res, 400, 'Username and OTP code cannot be null', false, null);
         }
 
         const existingTempRegist = await TemporaryRegistration.findOne({ where: { username } });
 
         if (!existingTempRegist) {
-            return sendResponse(res, 404, 'Username not found');
+            return sendResponse(res, 404, 'Username not found', false, null);
         }
 
         const { step, otp_code, otp_expired_date } = existingTempRegist;
 
         if (step > 1) {
-            return sendResponse(res, 400, 'Email verification is already completed');
+            return sendResponse(res, 400, 'Email verification is already completed', false, null);
         }
 
         const isOtpValid = otp_code === otp && new Date(otp_expired_date) > new Date();
@@ -33,7 +33,7 @@ export const verifyEmail = async (req, res) => {
 
             const otpExpiredFormatted = formatToJakartaTime(otp_expired_date);
 
-            return sendResponse(res, 200, 'Email verification success', {
+            return sendResponse(res, 200, 'Email verification success', true, {
                 data_customer: {
                     email: existingTempRegist.email,
                     username: existingTempRegist.username,
@@ -48,10 +48,10 @@ export const verifyEmail = async (req, res) => {
                 },
             }, true);
         } else {
-            return sendResponse(res, 400, 'Invalid or expired OTP code');
+            return sendResponse(res, 400, 'Invalid or expired OTP code', false, null);
         }
     } catch (error) {
         console.error(error);
-        return sendResponse(res, 500, 'Internal server error', { error: error.message });
+        return sendErrResponse(res, 500, 'Internal server error', false, { error: error.message });
     }
 };

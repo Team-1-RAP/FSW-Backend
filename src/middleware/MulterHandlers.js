@@ -17,7 +17,7 @@ export function multerErrorHandler(err, req, res, next) {
             message = 'Invalid file format. Only .jpg and .jpeg are allowed';
         }
 
-        return res.status(statusCode).json({ code: statusCode, status, message, data });
+        return res.status(statusCode).json({ code: statusCode, message, status, data });
     }
 
     next();

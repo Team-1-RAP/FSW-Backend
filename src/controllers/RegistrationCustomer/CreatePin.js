@@ -7,7 +7,7 @@ import Role from '../../models/Roles.js';
 import AccountTypes from '../../models/AccountTypes.js';
 import sequelize from '../../config/config.js';
 import { validatePin } from "../../utils/validationUtils.js";
-import { sendResponse } from '../../helpers/responseHelper.js';
+import { sendResponse, sendErrResponse } from '../../helpers/responseHelper.js';
 
 const getTemporaryRegistration = async (username) => {
     return await TemporaryRegistration.findOne({ where: { username } });
@@ -26,12 +26,7 @@ const getAccountWithPurpose = async (accountNo) => {
 
 const handleTransactionError = (res, error, logMessage) => {
     console.error(`${logMessage}:`, error);
-    return res.status(500).json({
-        code: 500,
-        message: 'Internal Server Error',
-        error: error.message || 'An unknown error occurred',
-        data: null,
-    });
+    return sendErrResponse(res, 500, 'Internal Server Error', false, error.message);
 };
 
 export const createPin = async (req, res) => {
