@@ -1,5 +1,5 @@
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const USERNAME_FORMAT = /^(?!\d+$)[A-Za-z0-9]{6}$/;
+const USERNAME_FORMAT = /^(?!\d+$)[A-Za-z0-9]{6,}$/;
 const PASSWORD_FORMAT = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/;
 const PIN_FORMAT = /^[0-9]{6}$/;
 const NIK_FORMAT = /^[0-9]{16}$/;
