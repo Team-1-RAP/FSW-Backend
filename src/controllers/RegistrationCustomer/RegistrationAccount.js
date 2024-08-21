@@ -102,7 +102,7 @@ export const registrationAccount = async (req, res) => {
             return sendResponse(res, 400, 'Username is already taken', false, null);
         }
 
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(13);
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // OTP generate
@@ -113,6 +113,6 @@ export const registrationAccount = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        return sendResponse(res, 500, 'Internal server error', false, { error: error.message });
+        return sendErrResponse(res, 500, 'Internal server error', false, { error: error.message });
     }
 };
