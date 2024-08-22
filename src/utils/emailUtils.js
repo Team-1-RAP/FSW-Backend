@@ -20,6 +20,10 @@ export const createPinToken = (userId, account_no) => {
     return jwt.sign({ userId, account_no }, jwtSecret, { expiresIn: '24h' });
 };
 
+export const createPinTokenRegister = (email, account_no) => {
+    return jwt.sign({ email, account_no }, jwtSecret, { expiresIn: '24h' });
+};
+
 const createTransporter = async () => {
     const accessToken = await oAuth2Client.getAccessToken();
 
@@ -159,6 +163,11 @@ export const sendEmailConfirmation = async (email, name) => {
 export const sendCreatePin = async (email, account_no, atm_card_no, name) => {
     try {
         const transporter = await createTransporter();
+        
+        const LINK_PINREGIS = `https://storied-paletas-e17bc9.netlify.app/register/new-pin/`;
+
+        const token = createPinTokenRegister(email, account_no);
+        console.log('Token:', token);
 
         const htmlContent = `
             <!DOCTYPE html>
@@ -177,7 +186,7 @@ export const sendCreatePin = async (email, account_no, atm_card_no, name) => {
                         <li>Nomor Kartu: ${atm_card_no}</li>
                     </ul>
                     <p>Untuk menjaga keamanan dan kenyamanan dalam bertransaksi, Anda perlu membuat PIN transaksi. Silakan klik tautan di bawah ini untuk melanjutkan proses pembuatan PIN:</p>
-                    <p><a href="[link]">Buat PIN Transaksi Anda</a></p>
+                    <p>Buat PIN Transaksi Anda <a href="${LINK_PINREGIS}${token}">disini</a>. Link ini hanya berlaku dalam 1x24 Jam</p>
                     <br>
                     <p>Terima kasih telah memilih SimpleBank. Jika Anda memiliki pertanyaan atau memerlukan bantuan lebih lanjut, jangan ragu untuk menghubungi tim customer service kami melalui email simplebankteams@gmail.com</p>
                     <br>
@@ -195,14 +204,13 @@ export const sendCreatePin = async (email, account_no, atm_card_no, name) => {
             html: htmlContent,
         };
 
-        const result = await transporter.sendMail(mailOptions);
-        return result;
+        await transporter.sendMail(mailOptions);
+        return token;
     } catch (error) {
         console.error('Error sending email confirmation:', error);
         throw new Error('Error sending email confirmation');
     }
 };
-
 
 export const sendCreatePinTes = async (email, account_no, atm_card_no, name, userId) => {
     try {
@@ -248,7 +256,7 @@ export const sendCreatePinTes = async (email, account_no, atm_card_no, name, use
         };
 
         const result = await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully:', result);
+        console.log('Email sent success:', result);
         return result;
     } catch (error) {
         console.error('Error sending email confirmation:', error);

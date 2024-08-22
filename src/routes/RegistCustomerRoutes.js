@@ -273,13 +273,13 @@ const upload = multer({
 
 /**
  * @swagger
- * /v1/registration/customer/createPin/{username}:
+ * /v1/registration/customer/createPin/{token}:
  *   post:
  *     tags: [Registration Customer]
  *     summary: 
  *     parameters:
  *       - in: path
- *         name: username
+ *         name: token
  *         required: true
  *         schema:
  *           type: string
@@ -325,6 +325,6 @@ router.post('/v1/registration/customer/uploadImg', upload.fields([
     { name: 'photo_document', maxCount: 1 },
     { name: 'signature_document', maxCount: 1 }
   ]), multerErrorHandler, uploadImg)
-router.post('/v1/registration/customer/createPin/:username', createPin);
+router.post('/v1/registration/customer/createPin/:token', createPin);
 
 export default router;
