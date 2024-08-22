@@ -7,6 +7,7 @@ import BankRoutes from './src/routes/BankRoutes.js';
 import ChangePasswordRoutes from './src/routes/ChangePasswordRoutes.js';
 import RegistCustomerRoutes from './src/routes/RegistCustomerRoutes.js';
 import AccountRoutes from './src/routes/AccountRoutes.js';
+import AddAccountRoutes from './src/routes/AddAccountRoutes.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
 
@@ -24,6 +25,7 @@ app.use(BankRoutes);
 app.use(ChangePasswordRoutes);
 app.use(RegistCustomerRoutes);
 app.use(AccountRoutes);
+app.use(AddAccountRoutes);
 
 const PORT = process.env.PORT || 5000; 
 app.listen(PORT, () => {

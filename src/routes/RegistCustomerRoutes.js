@@ -1,7 +1,30 @@
 import express from 'express';
-import { registrationAccount, verifyEmail, accountType, createPin } from '../controllers/RegistCustomerController.js';
+import multer from 'multer';
+import { registrationAccount } from '../controllers/RegistrationCustomer/RegistrationAccount.js';
+import { verifyEmail } from '../controllers/RegistrationCustomer/VerifyEmail.js'
+import { accountType } from '../controllers/RegistrationCustomer/AccountType.js';
+import { personalData } from '../controllers/RegistrationCustomer/PersonalData.js';
+import { uploadImg } from '../controllers/RegistrationCustomer/UploadImage.js';
+import { createPin } from '../controllers/RegistrationCustomer/CreatePin.js';
+import { multerErrorHandler } from '../middleware/MulterHandlers.js';
 
 const router = express.Router();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+      const allowedTypes = /jpg|jpeg/;
+      const extname = allowedTypes.test(file.mimetype);
+      const mimetype = allowedTypes.test(file.originalname.split('.').pop().toLowerCase());
+      
+      if (extname && mimetype) {
+          cb(null, true);
+      } else {
+          cb(new Error('Format only .jpg and .jpeg'), false);
+      }
+  },
+  limits: { fileSize: 2 * 1024 * 1024 }
+});
 
 /**
  * @swagger
@@ -139,13 +162,124 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/registration/customer/createPin/{username}:
+ * /v1/registration/customer/personalData:
+ *   post:
+ *     tags: [Registration Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "user123"
+ *               fullname:
+ *                 type: string
+ *                 example: "Jude Belingham"
+ *               nik:
+ *                 type: string
+ *                 example: "1234567890123456"
+ *               born_date:
+ *                 type: string
+ *                 format: date
+ *                 example: "2001-07-03"
+ *               address:
+ *                 type: string
+ *                 description: Alamat pengguna
+ *                 example: "Jl. Jendral Sudirman No. 123"
+ *               accountPurpose_id:
+ *                 type: integer
+ *                 description: ID tujuan akun
+ *                 example: 1
+*     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: OK
+ *                 data:
+ *                   type: object
+ *                   description: 
+ */
+
+/**
+ * @swagger
+ * /v1/registration/customer/uploadImg:
+ *   post:
+ *     tags: [Registration Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: Username of the user
+ *                 example: "user123"
+ *               ktp_document:
+ *                 type: string
+ *                 format: binary
+ *                 description: KTP image file (JPG/JPEG)
+ *               photo_document:
+ *                 type: string
+ *                 format: binary
+ *                 description: Profile photo (JPG/JPEG)
+ *               signature_document:
+ *                 type: string
+ *                 format: binary
+ *                 description: Signature image file (JPG/JPEG)
+ *     responses:
+ *       200:
+ *         description: Files uploaded success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Files uploaded success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     ktp_url:
+ *                       type: string
+ *                       format: uri
+ *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/ktp/ktp_image.jpg"
+ *                     photo_url:
+ *                       type: string
+ *                       format: uri
+ *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/photos/profil_image.jpg"
+ *                     signature_url:
+ *                       type: string
+ *                       format: uri
+ *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/signature/signature_image.jpg"
+ */
+
+/**
+ * @swagger
+ * /v1/registration/customer/createPin/{token}:
  *   post:
  *     tags: [Registration Customer]
  *     summary: 
  *     parameters:
  *       - in: path
- *         name: username
+ *         name: token
  *         required: true
  *         schema:
  *           type: string
@@ -181,9 +315,16 @@ const router = express.Router();
  *                   description: 
  */
 
+
 router.post('/v1/registration/customer/profile', registrationAccount);
 router.post('/v1/registration/customer/verifyEmail', verifyEmail);
 router.post('/v1/registration/customer/accountType', accountType);
-router.post('/v1/registration/customer/createPin/:username', createPin);
+router.post('/v1/registration/customer/personalData', personalData);
+router.post('/v1/registration/customer/uploadImg', upload.fields([
+    { name: 'ktp_document', maxCount: 1 },
+    { name: 'photo_document', maxCount: 1 },
+    { name: 'signature_document', maxCount: 1 }
+  ]), multerErrorHandler, uploadImg)
+router.post('/v1/registration/customer/createPin/:token', createPin);
 
 export default router;
