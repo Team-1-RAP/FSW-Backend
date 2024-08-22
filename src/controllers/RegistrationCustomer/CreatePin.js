@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import TemporaryRegistration from '../../models/TemporaryRegistration.js';
 import Customer from "../../models/Customers.js";
 import Account from '../../models/Accounts.js';
@@ -9,8 +11,11 @@ import sequelize from '../../config/config.js';
 import { validatePin } from "../../utils/validationUtils.js";
 import { sendResponse, sendErrResponse } from '../../helpers/responseHelper.js';
 
-const getTemporaryRegistration = async (username) => {
-    return await TemporaryRegistration.findOne({ where: { username } });
+dotenv.config();
+const jwtSecret = process.env.JWT_SECRET;
+
+const getTemporaryRegistrationByAccountNo = async (accountNo) => {
+    return await TemporaryRegistration.findOne({ where: { no_account: accountNo } });
 };
 
 const getAccountType = async (accountTypeId) => {
@@ -31,15 +36,25 @@ const handleTransactionError = (res, error, logMessage) => {
 
 export const createPin = async (req, res) => {
     const { pin, confirmPin } = req.body;
-    const { username } = req.params;
+    const { token } = req.params;
 
-    if (!username || !pin || !confirmPin) {
-        return sendResponse(res, 400, 'Username, PIN, and confirm pin cannot be empty', false, null);
+    if (!pin || !confirmPin || !token) {
+        return sendResponse(res, 400, 'PIN, confirm pin, and token cannot be empty', false, null);
     }
 
+    // Verifikasi token
     try {
-        const tempRegist = await getTemporaryRegistration(username);
-        if (!tempRegist) return sendResponse(res, 404, 'Username not found', false, null );
+        const decoded = jwt.verify(token, jwtSecret);
+        console.log('Decoded token:', decoded);
+        const { email, account_no } = decoded;
+
+        const tempRegist = await getTemporaryRegistrationByAccountNo(account_no);
+        console.log('Temporary Registration Data:', tempRegist);
+
+        if (!tempRegist || tempRegist.email !== email) {
+            console.log(`Mismatch: Token email (${email}) does not match registration email (${tempRegist.email})`);
+            return sendResponse(res, 404, 'Invalid token or account number', false, null);
+        }
 
         if (tempRegist.step < 5) {
             return sendResponse(res, 400, 'Previous steps not completed', false, null);
@@ -73,6 +88,13 @@ export const createPin = async (req, res) => {
         }
 
     } catch (error) {
+        console.error('Token verification error:', error);
+        if (error.name === 'JsonWebTokenError') {
+            return sendErrResponse(res, 401, 'Invalid token', false, null);
+        }
+        if (error.name === 'TokenExpiredError') {
+            return sendErrResponse(res, 401, 'Token expired', false, null);
+        }
         return handleTransactionError(res, error, 'Error during PIN creation');
     }
 };
