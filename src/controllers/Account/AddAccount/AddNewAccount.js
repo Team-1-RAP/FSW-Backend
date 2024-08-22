@@ -1,11 +1,17 @@
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import AccountTypes from '../../../models/AccountTypes.js';
 import Customer from '../../../models/Customers.js';
 import AccountPurpose from '../../../models/AccountPurpose.js';
 import Account from '../../../models/Accounts.js';
 import sequelize from '../../../config/config.js';
 import { sendResponse, sendErrResponse } from '../../../helpers/responseHelper.js';
-import { sendEmailConfirmation, sendCreatePin } from '../../../utils/emailUtils.js';
+import { sendEmailConfirmation, sendCreatePin, sendCreatePinTes } from '../../../utils/emailUtils.js';
 import { generateNewAccountNumber, generateNewCardNumber } from '../../../utils/generateAccount.js';
+import { createPinToken } from '../../../utils/emailUtils.js';
+dotenv.config();
+
+const jwtSecret = process.env.JWT_SECRET;
 
 const schedulePinEmail = (email, accountNumber, cardNumber, fullname) => {
     setTimeout(() => {
@@ -59,26 +65,39 @@ export const addAccountType = async (req, res) => {
         }, { transaction });
         await transaction.commit();
 
-        await sendEmailConfirmation(existingCustomer.email, existingCustomer.fullname);
-        schedulePinEmail(existingCustomer.email, account.no, account.atm_card_no, existingCustomer.fullname);
+        try {
+            const accessToken = createPinToken(req.user.userId, account.no);
+            const decodedToken = jwt.verify(accessToken, jwtSecret);
+            const expirationDate = new Date(decodedToken.exp * 1000);
 
-        return sendResponse(res, 201, 'Account success created', true, {
-            data: {
-                user_id: account.userId,
-                account_typeId: account.accountTypeId,
-                account_typeName: account.accountTypeName,
-                account_no: account.no,
-                account_purpose: account.accountPurposeId,
-                account_purposeType: accountType.type,
-                atm_card_no: account.atm_card_no,
-                exp_date: account.expDate,
-                balance: account.balance,
-                createdDate: account.createdDate
-            }
-        });
+            await sendEmailConfirmation(existingCustomer.email, existingCustomer.fullname);
+            await sendCreatePinTes(existingCustomer.email, account.no, account.atm_card_no, existingCustomer.fullname, req.user.userId);
+
+            return sendResponse(res, 201, 'Account success created', true, {
+                data: {
+                    user_id: account.userId,
+                    account_typeId: account.accountTypeId,
+                    account_typeName: account.accountTypeName,
+                    account_no: account.no,
+                    account_purpose: account.accountPurposeId,
+                    account_purposeType: accountPurpose.type,
+                    atm_card_no: account.atm_card_no,
+                    exp_date: account.expDate,
+                    balance: account.balance,
+                    createdDate: account.createdDate,
+                    accessToken: accessToken,
+                    token_expDate: expirationDate.toISOString()
+                }
+            });
+        } catch (error) {
+            console.error('Error after commit:', error);
+            return sendErrResponse(res, 500, 'Error after commit', false, { error: error.message });
+        }
         
     } catch (error) {
-        await transaction.rollback(); 
+        if (!transaction.finished) {
+            await transaction.rollback(); 
+        }
         console.error('Error during creating account:', error);
         return sendErrResponse(res, 500, 'Internal server error', false, { error: error.message });
     }
