@@ -255,9 +255,8 @@ export const sendCreatePinTes = async (email, account_no, atm_card_no, name, use
             html: htmlContent,
         };
 
-        const result = await transporter.sendMail(mailOptions);
-        console.log('Email sent success:', result);
-        return result;
+        await transporter.sendMail(mailOptions);
+        return token;
     } catch (error) {
         console.error('Error sending email confirmation:', error);
         throw new Error('Error sending email confirmation');

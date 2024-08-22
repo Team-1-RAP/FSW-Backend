@@ -8,7 +8,6 @@ import sequelize from '../../../config/config.js';
 import { sendResponse, sendErrResponse } from '../../../helpers/responseHelper.js';
 import { sendEmailConfirmation, sendCreatePin, sendCreatePinTes } from '../../../utils/emailUtils.js';
 import { generateNewAccountNumber, generateNewCardNumber } from '../../../utils/generateAccount.js';
-import { createPinToken } from '../../../utils/emailUtils.js';
 dotenv.config();
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -66,12 +65,8 @@ export const addAccountType = async (req, res) => {
         await transaction.commit();
 
         try {
-            const accessToken = createPinToken(req.user.userId, account.no);
-            const decodedToken = jwt.verify(accessToken, jwtSecret);
-            const expirationDate = new Date(decodedToken.exp * 1000);
-
             await sendEmailConfirmation(existingCustomer.email, existingCustomer.fullname);
-            await sendCreatePinTes(existingCustomer.email, account.no, account.atm_card_no, existingCustomer.fullname, req.user.userId);
+            const token = await sendCreatePinTes(existingCustomer.email, account.no, account.atm_card_no, existingCustomer.fullname, req.user.userId);
 
             return sendResponse(res, 201, 'Account success created', true, {
                 data: {
@@ -85,8 +80,8 @@ export const addAccountType = async (req, res) => {
                     exp_date: account.expDate,
                     balance: account.balance,
                     createdDate: account.createdDate,
-                    accessToken: accessToken,
-                    token_expDate: expirationDate.toISOString()
+                    accessToken: token,
+                    token_expDate: new Date(jwt.verify(token, jwtSecret).exp * 1000).toISOString()
                 }
             });
         } catch (error) {
