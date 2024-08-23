@@ -81,7 +81,9 @@ export const customerData = async (req, res) => {
         const token = await sendCreatePin(
             updatedTempRegist.email,
             updatedTempRegist.no_account,
-            updatedTempRegist.username
+            updatedTempRegist.atm_card_no,
+            updatedTempRegist.username,
+            updatedTempRegist.fullname
         );
 
         const otpExpiredFormatted = formatToJakartaTime(updatedTempRegist.otp_expired_date);

@@ -26,6 +26,8 @@ export const createPinTokenRegister = (email, account_no, username) => {
         account_no,
         username
     };
+
+    console.log("Token:", payload)
     return jwt.sign(payload, jwtSecret, { expiresIn: '24h' });
 };
 
