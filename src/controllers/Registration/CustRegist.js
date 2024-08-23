@@ -81,7 +81,6 @@ export const customerData = async (req, res) => {
         const token = await sendCreatePin(
             updatedTempRegist.email,
             updatedTempRegist.no_account,
-            updatedTempRegist.atm_card,
             updatedTempRegist.username
         );
 

@@ -24,10 +24,8 @@ export const createPinTokenRegister = (email, account_no, username) => {
     const payload = {
         email,
         account_no,
-        atm_card_no,
         username
     };
-    console.log('Creating token with payload:', payload); // Tambahkan log
     return jwt.sign(payload, jwtSecret, { expiresIn: '24h' });
 };
 
