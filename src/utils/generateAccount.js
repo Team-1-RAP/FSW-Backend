@@ -10,42 +10,33 @@ export const generateNewAccountNumber = async (accountType) => {
 
     const lastTempAccount = await TemporaryRegistration.findOne({
         where: { no_account: { [Op.like]: `${BANK_CODE}${accountTypeCode}%` } },
-        order: [['no_account', 'DESC']]
+        attributes: [[TemporaryRegistration.sequelize.fn('MAX', TemporaryRegistration.sequelize.col('no_account')), 'max_no_account']],
+        raw: true,
     });
 
+    const lastAccount = await Account.findOne({
+        where: { 
+            no: { 
+                [Op.like]: `${BANK_CODE}${accountTypeCode}%`
+            }
+        },
+        attributes: [[Account.sequelize.fn('MAX', Account.sequelize.col('no')), 'max_no_account']],
+        raw: true,
+    });
+
+    const maxAccountNo = lastTempAccount.max_no_account && lastAccount.max_no_account
+        ? (lastTempAccount.max_no_account > lastAccount.max_no_account ? lastTempAccount.max_no_account : lastAccount.max_no_account)
+        : (lastTempAccount.max_no_account || lastAccount.max_no_account);
+
     let serialNumber;
-
-    if (lastTempAccount) {
-        serialNumber = String(parseInt(lastTempAccount.no_account.slice(-6)) + 1).padStart(6, '0');
+    if (maxAccountNo) {
+        serialNumber = String(parseInt(maxAccountNo.slice(-6)) + 1).padStart(6, '0');
     } else {
-        const lastAccount = await Account.findOne({
-            where: { no: { [Op.like]: `${BANK_CODE}${accountTypeCode}%` } },
-            order: [['no', 'DESC']]
-        });
-
-        serialNumber = lastAccount ? 
-            String(parseInt(lastAccount.no.slice(-6)) + 1).padStart(6, '0') : '000001';
+        serialNumber = '000001';
     }
 
     return `${BANK_CODE}${accountTypeCode}${serialNumber}`;
 };
-
-export const generateAddAccountNumber = async (accountType) => {
-    const accountTypeCode = accountType.code; 
-
-    const lastAccount = await Account.findOne({
-        where: { no: { [Op.like]: `${BANK_CODE}${accountTypeCode}%` } },
-        order: [['no', 'DESC']]
-    });
-
-    let serialNumber;
-
-    serialNumber = lastAccount ? 
-        String(parseInt(lastAccount.no.slice(-6)) + 1).padStart(6, '0') : '000001';
-
-    return `${BANK_CODE}${accountTypeCode}${serialNumber}`;
-};
-
 
 export const generateNewCardNumber = async () => {
     const lastCard = await Account.findOne({
