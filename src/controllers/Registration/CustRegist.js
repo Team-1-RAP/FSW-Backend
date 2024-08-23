@@ -34,7 +34,7 @@ export const customerData = async (req, res) => {
             return sendResponse(res, 404, 'Account type not found', false, null);
         }
 
-        const nikValidation = validateNik(nik);
+        const nikValidation = await validateNik(nik);
         if (!nikValidation.valid) {
             return sendResponse(res, 400, nikValidation.message, false, null);
         }
