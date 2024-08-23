@@ -49,7 +49,6 @@ export const createPin = async (req, res) => {
         
         const { email, account_no, username } = decoded;
 
-        // Log data yang diambil dari database
         const tempRegist = await getTempRegistByAccountNo(account_no);
         console.log('Temporary Registration Data:', tempRegist);
 
