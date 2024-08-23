@@ -169,7 +169,7 @@ export const sendCreatePin = async (email, account_no, atm_card_no, username, na
     try {
         const transporter = await createTransporter();
 
-        const LINK_PINREGIS = `https://storied-paletas-e17bc9.netlify.app/register/new-pin/`;
+        const LINK_PINREGIS = `https://fsw-frontend-staging.up.railway.app/pengaturan/new-pin/`;
 
         const token = createPinTokenRegister(email, account_no, username);
         console.log('Token:', token);
@@ -220,7 +220,7 @@ export const sendCreatePin = async (email, account_no, atm_card_no, username, na
 export const sendCreatePinTes = async (email, account_no, atm_card_no, name, userId) => {
     try {
         const transporter = await createTransporter();
-        const LINK_NEWPIN = 'https://storied-paletas-e17bc9.netlify.app/new-pin/'
+        const LINK_NEWPIN = 'https://fsw-frontend-staging.up.railway.app/pengaturan/new-pin/'
 
         const token = createPinToken(userId, account_no);
         console.log('Token:', token);

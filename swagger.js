@@ -10,7 +10,7 @@ const options = {
         },
         servers: [
             {
-                url: 'https://simplebank.my.id',
+                url: 'http://localhost:5000',
             },
         ],
         components: {
