@@ -13,7 +13,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/account/new/initial:
+ * /v1/account/new/accountType:
  *   post:
  *     tags: [Account]
  *     requestBody:
@@ -99,7 +99,7 @@ const router = express.Router();
  *                   example: true
  */
 
-router.post('/v1/account/new/initial', verifyToken, addAccountType);
+router.post('/v1/account/new/accountType', verifyToken, addAccountType);
 router.post('/v1/account/new-pin/:token', createNewPin);
 
 export default router;
