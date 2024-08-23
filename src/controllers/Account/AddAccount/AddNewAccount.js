@@ -7,7 +7,7 @@ import Account from '../../../models/Accounts.js';
 import sequelize from '../../../config/config.js';
 import { sendResponse, sendErrResponse } from '../../../helpers/responseHelper.js';
 import { sendEmailConfirmation, sendCreatePin, sendCreatePinTes } from '../../../utils/emailUtils.js';
-import { generateNewAccountNumber, generateNewCardNumber } from '../../../utils/generateAccount.js';
+import { generateAddAccountNumber, generateNewCardNumber } from '../../../utils/generateAccount.js';
 dotenv.config();
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -45,7 +45,7 @@ export const addAccountType = async (req, res) => {
             updatedDate: new Date()
         }, { transaction });
 
-        const accountNumber = await generateNewAccountNumber(accountType);
+        const accountNumber = await generateAddAccountNumber(accountType);
         const cardNumber = await generateNewCardNumber();
         const expDate = new Date();
         expDate.setFullYear(expDate.getFullYear() + 5); 
