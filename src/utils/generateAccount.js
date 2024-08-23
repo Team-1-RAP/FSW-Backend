@@ -30,6 +30,23 @@ export const generateNewAccountNumber = async (accountType) => {
     return `${BANK_CODE}${accountTypeCode}${serialNumber}`;
 };
 
+export const generateAddAccountNumber = async (accountType) => {
+    const accountTypeCode = accountType.code; 
+
+    const lastAccount = await Account.findOne({
+        where: { no: { [Op.like]: `${BANK_CODE}${accountTypeCode}%` } },
+        order: [['no', 'DESC']]
+    });
+
+    let serialNumber;
+
+    serialNumber = lastAccount ? 
+        String(parseInt(lastAccount.no.slice(-6)) + 1).padStart(6, '0') : '000001';
+
+    return `${BANK_CODE}${accountTypeCode}${serialNumber}`;
+};
+
+
 export const generateNewCardNumber = async () => {
     const lastCard = await Account.findOne({
         where: { atm_card_no: { [Op.like]: `${CARD_NUMBER_PREFIX}%` } },
