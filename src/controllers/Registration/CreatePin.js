@@ -1,14 +1,14 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import TemporaryRegistration from '../../models/TemporaryRegistration.js';
-import Customer from "../../models/Customers.js";
+import Customer from '../../models/Customers.js';
 import Account from '../../models/Accounts.js';
 import AccountPurpose from '../../models/AccountPurpose.js';
 import OAuthUserRole from '../../models/OAuthUserRole.js';
 import Role from '../../models/Roles.js';
 import AccountTypes from '../../models/AccountTypes.js';
 import sequelize from '../../config/config.js';
-import { validatePin } from "../../utils/validationUtils.js";
+import { validatePin } from '../../utils/validationUtils.js';
 import { sendResponse, sendErrResponse } from '../../helpers/responseHelper.js';
 
 dotenv.config();
@@ -47,16 +47,17 @@ export const createPin = async (req, res) => {
         const decoded = jwt.verify(token, jwtSecret);
         console.log('Decoded token:', decoded);
         
-        const { account_no, username } = decoded;
+        const { email, account_no, username } = decoded;
 
+        // Log data yang diambil dari database
         const tempRegist = await getTempRegistByAccountNo(account_no);
         console.log('Temporary Registration Data:', tempRegist);
 
-        if (!tempRegist || tempRegist.username !== username || tempRegist.no_account !== account_no) {
-            console.log(`Mismatch: Token username (${username}) not match with registered data`);
-            return sendResponse(res, 404, 'Invalid token or no account not found', false, null);
+        if (!tempRegist || tempRegist.username !== username || tempRegist.email !== email) {
+            console.log(`Mismatch: Token email (${email}) or username (${username}) not match with registered data`);
+            return sendResponse(res, 404, 'Invalid token or account not found', false, null);
         }
-        
+
         const pinValidation = validatePin(pin, confirmPin);
         if (!pinValidation.valid) {
             return sendResponse(res, 400, pinValidation.message, false, null);
@@ -138,8 +139,6 @@ const assignRolesToCustomer = async (customerId, transaction) => {
         }
     });
 
-    console.log('tess:', roles);
-
     for (const role of roles) {
         await OAuthUserRole.create({
             user_id: customerId,  
@@ -151,7 +150,7 @@ const assignRolesToCustomer = async (customerId, transaction) => {
 const sendSuccessResponse = (res, newCustomer, newAccount, accountDataPurpose) => {
     return res.status(200).json({
         code: 200,
-        message: 'Pin success created, please login with your username and password',
+        message: 'PIN successfully created, please login with your username and password',
         status: true,
         data: {
             data_customer: {
@@ -159,14 +158,14 @@ const sendSuccessResponse = (res, newCustomer, newAccount, accountDataPurpose) =
                 username: newCustomer.username,
                 fullname: newCustomer.fullname,
                 nik: newCustomer.nik,
-                born_date: newCustomer.born_date, 
+                born_date: newCustomer.bornDate, 
                 address: newCustomer.address,
             },
             data_account: {
                 account_no: newAccount.no,
                 atm_card_no: newAccount.atm_card_no,
                 accountTypeId: newAccount.accountTypeId,
-                accountTypeCode: newAccount.code,
+                accountTypeCode: newAccount.accountTypeCode,
                 accountTypeName: newAccount.accountTypeName,
                 account_purpose_id: accountDataPurpose.accountPurpose.id,
                 account_purpose: accountDataPurpose.accountPurpose.type,

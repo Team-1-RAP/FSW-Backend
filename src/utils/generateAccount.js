@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import Account from '../models/Accounts.js';
+import TemporaryRegistration from '../models/TemporaryRegistration.js';
 
 const BANK_CODE = '01';
 const CARD_NUMBER_PREFIX = '51';
@@ -7,14 +8,25 @@ const CARD_NUMBER_PREFIX = '51';
 export const generateNewAccountNumber = async (accountType) => {
     const accountTypeCode = accountType.code; 
 
-    const lastAccount = await Account.findOne({
-        where: { no: { [Op.like]: `${BANK_CODE}${accountTypeCode}%` } },
-        order: [['no', 'DESC']]
+    const lastTempAccount = await TemporaryRegistration.findOne({
+        where: { no_account: { [Op.like]: `${BANK_CODE}${accountTypeCode}%` } },
+        order: [['no_account', 'DESC']]
     });
 
-    const serialNumber = lastAccount ? 
-        String(parseInt(lastAccount.no.slice(-6)) + 1).padStart(6, '0') : '000001';
-        
+    let serialNumber;
+
+    if (lastTempAccount) {
+        serialNumber = String(parseInt(lastTempAccount.no_account.slice(-6)) + 1).padStart(6, '0');
+    } else {
+        const lastAccount = await Account.findOne({
+            where: { no: { [Op.like]: `${BANK_CODE}${accountTypeCode}%` } },
+            order: [['no', 'DESC']]
+        });
+
+        serialNumber = lastAccount ? 
+            String(parseInt(lastAccount.no.slice(-6)) + 1).padStart(6, '0') : '000001';
+    }
+
     return `${BANK_CODE}${accountTypeCode}${serialNumber}`;
 };
 
