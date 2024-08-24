@@ -1,7 +1,7 @@
-import Account from '../models/account.js';
-import FlagUser from '../models/flagUser.js';
-import Customer from '../models/customer.js';
-import { formatToJakartaTime } from '../utils/dateUtils.js';
+import Account from "../models/Accounts.js";
+import FlagUser from "../models/FlagUsers.js";
+import Customer from "../models/Customers.js";
+import { formatToJakartaTime } from "../utils/dateUtils.js";
 
 export const changePin = async (req, res) => {
   const { atm_card_no, pin, confirmPin } = req.body;
@@ -10,7 +10,8 @@ export const changePin = async (req, res) => {
     if (!atm_card_no || !pin || !confirmPin) {
       return res.status(400).json({
         code: 400,
-        message: 'Atm card number, new pin and confirmation your new pin needed',
+        message:
+          "Atm card number, new pin and confirmation your new pin needed",
         data: null,
       });
     }
@@ -18,26 +19,39 @@ export const changePin = async (req, res) => {
     if (pin !== confirmPin) {
       return res.status(400).json({
         code: 400,
-        message: 'Pin does not match',
+        message: "Pin does not match",
         data: null,
       });
     }
-    const account = await Account.findOne({ where: { atm_card_no: atm_card_no } });
+
+    if (!/^\d{1,6}$/.test(pin)) {
+      return res.status(400).json({
+        code: 400,
+        message: "PIN must be a number with a maximum of 6 digits",
+        data: null,
+      });
+    }
+
+    const account = await Account.findOne({
+      where: { atm_card_no: atm_card_no },
+    });
 
     if (!account) {
       return res.status(400).json({
         code: 400,
-        message: 'Account not found',
+        message: "Account not found",
         data: null,
       });
     }
 
-    const flagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+    const flagUser = await FlagUser.findOne({
+      where: { customer_id: account.userId },
+    });
 
     if (!flagUser || flagUser.is_verified !== true) {
       return res.status(400).json({
         code: 400,
-        message: 'OTP verification not completed or failed',
+        message: "OTP verification not completed or failed",
         data: null,
       });
     }
@@ -59,19 +73,21 @@ export const changePin = async (req, res) => {
     await Account.update(
       {
         pin: pin,
-        pin_attempts: 0
+        pin_attempts: 0,
       },
       { where: { user_id: flagUser.customer_id } }
     );
 
-    const updatedFlagUser = await FlagUser.findOne({ where: { customer_id: account.userId } });
+    const updatedFlagUser = await FlagUser.findOne({
+      where: { customer_id: account.userId },
+    });
 
     const { updated_at: updatedFlagUserUpdatedAt } = updatedFlagUser;
     const updatedAtFormatted = formatToJakartaTime(updatedFlagUserUpdatedAt);
 
     return res.status(200).json({
       code: 200,
-      message: 'New pin succes, please use your new PIN for transactions',
+      message: "New pin succes, please use your new PIN for transactions",
       data: {
         atm_card_no: account.atm_card_no,
         account_no: account.no,
@@ -102,7 +118,7 @@ export const changePin = async (req, res) => {
       created_date: account.createdDate,
     });
   } catch (error) {
-    console.error('Error during saving password:', error);
+    console.error("Error during saving password:", error);
     return res.status(500).json({
       code: 500,
       message: error.message,

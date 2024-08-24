@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/config.js';
-import Customer from './customer.js';
+import Customer from './Customers.js';
 
 const FlagUser = sequelize.define(
   'flag_user',
@@ -74,6 +74,10 @@ const FlagUser = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: true,
     },
+    is_currentPass_valid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    }
   },
   {
     tableName: 'flag_user',

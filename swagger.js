@@ -6,15 +6,29 @@ const options = {
         info: {
             title: 'Simple Bank API - BE FSW',
             version: '1.0.0',
-            description: '[/api/v3/api-docs](http://localhost:5000/api/v3/api-docs)',
+            description: '[/api/v3/api-docs](https://simplebank.my.id/api/v3/api-docs)',
         },
         servers: [
             {
-                url: 'http://localhost:5000',
+                url: 'https://simplebank.my.id',
             },
         ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT'
+                }
+            }
+        },
+        security: [
+            {
+                bearerAuth: []
+            }
+        ]
     },
-    apis: ['./routes/*.js'], 
+    apis: ['./src/routes/*.js'], 
 };
 
 const swaggerSpec = swaggerJsdoc(options);

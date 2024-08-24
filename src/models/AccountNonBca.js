@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../config/config.js";
-import Bank from "./bank.js";
+import Bank from "./Bank.js";
 
 const AccountNonBca = sequelize.define('AccountNonBca', {
     no_non_bca: {

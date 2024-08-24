@@ -1,9 +1,13 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import accountRoutes from './routes/account.js';
-import authRoutes from './routes/auth.js';
-import BankRoutes from './routes/Bank.js';
+import ResetPasswordRoute from './src/routes/ResetPasswordRoutes.js';
+import ResetPinRoute from './src/routes/ResetPinRoutes.js';
+import BankRoutes from './src/routes/BankRoutes.js';
+import ChangePasswordRoutes from './src/routes/ChangePasswordRoutes.js';
+import AccountRoutes from './src/routes/AccountRoutes.js';
+import AddAccountRoutes from './src/routes/AddAccountRoutes.js';
+import RegistrationRoute from './src/routes/RegistrationRoutes.js'
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
 
@@ -15,9 +19,13 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/v3/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use(accountRoutes);
-app.use(authRoutes);
+app.use(ResetPasswordRoute);
+app.use(ResetPinRoute);
 app.use(BankRoutes);
+app.use(ChangePasswordRoutes);
+app.use(AccountRoutes);
+app.use(AddAccountRoutes);
+app.use(RegistrationRoute);
 
 const PORT = process.env.PORT || 5000; 
 app.listen(PORT, () => {
