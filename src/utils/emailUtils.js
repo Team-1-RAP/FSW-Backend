@@ -222,7 +222,7 @@ export const sendCreatePin = async (email, account_no, atm_card_no, username, na
 export const sendCreatePinTes = async (email, account_no, atm_card_no, name, userId) => {
     try {
         const transporter = await createTransporter();
-        const LINK_NEWPIN = 'https://fsw-frontend-staging.up.railway.app/register/new-pin/'
+        const LINK_NEWPIN = 'https://fsw-frontend-staging.up.railway.app/new-account/new-pin/'
 
         const token = createPinToken(userId, account_no);
         console.log('Token:', token);
