@@ -5,7 +5,6 @@ import ResetPasswordRoute from './src/routes/ResetPasswordRoutes.js';
 import ResetPinRoute from './src/routes/ResetPinRoutes.js';
 import BankRoutes from './src/routes/BankRoutes.js';
 import ChangePasswordRoutes from './src/routes/ChangePasswordRoutes.js';
-import RegistCustomerRoutes from './src/routes/RegistCustomerRoutes.js';
 import AccountRoutes from './src/routes/AccountRoutes.js';
 import AddAccountRoutes from './src/routes/AddAccountRoutes.js';
 import RegistrationRoute from './src/routes/RegistrationRoutes.js'
@@ -24,7 +23,6 @@ app.use(ResetPasswordRoute);
 app.use(ResetPinRoute);
 app.use(BankRoutes);
 app.use(ChangePasswordRoutes);
-app.use(RegistCustomerRoutes);
 app.use(AccountRoutes);
 app.use(AddAccountRoutes);
 app.use(RegistrationRoute);
