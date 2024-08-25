@@ -1,7 +1,11 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import sequelize from '../../../config/config.js';
 import Account from '../../../models/Accounts.js';
+import AccountTypes from '../../../models/AccountTypes.js';
 import AccountPurpose from '../../../models/AccountPurpose.js';
+import TemporaryRegistration from '../../../models/TemporaryRegistration.js';
+import Customer from '../../../models/Customers.js';
 import { sendResponse, sendErrResponse } from '../../../helpers/responseHelper.js';
 import { validatePin } from '../../../utils/validationUtils.js';
 
@@ -26,33 +30,61 @@ export const createNewPin = async (req, res) => {
         const decoded = jwt.verify(token, jwtSecret);
         const { userId, account_no } = decoded;
 
-        const account = await Account.findOne({
-            where: { no: account_no, userId },
-            include: {
-                model: AccountPurpose,
-                as: 'accountPurpose',
-                attributes: ['id', 'type']
-            }
-        });
+        console.log('decode:', decoded);
 
-        if (!account) {
-            return sendErrResponse(res, 404, 'Account not found', false, null);
+        const tempAccount = await TemporaryRegistration.findOne({ where: { no_account: account_no, user_id: userId } });
+        if (!tempAccount) {
+            return sendErrResponse(res, 404, 'Temporary account not found', false, null);
         }
 
-        await account.update({ pin });
+        const accountType = await AccountTypes.findOne({ where: { id: tempAccount.account_type_id } });
+        if (!accountType) {
+            return sendErrResponse(res, 404, 'Account type not found', false, null);
+        }
 
-        return sendResponse(res, 200, 'PIN success updated', true, {
+        const customerData = await Customer.findOne({ where: { id: tempAccount.user_id } });
+        if (!customerData) {
+            return sendErrResponse(res, 404, 'User not found', false, null);
+        }
+
+        const expDate = new Date();
+        expDate.setFullYear(expDate.getFullYear() + 5);
+
+        const transaction = await sequelize.transaction();
+
+        await customerData.update({
+            address: tempAccount.address,
+            updatedDate: new Date()
+        }, { transaction });
+
+        const newAccount = await Account.create({
+            no: tempAccount.no_account,
+            userId: tempAccount.user_id,
+            accountTypeId: tempAccount.account_type_id,
+            accountTypeName: accountType.type,
+            accountPurposeId: tempAccount.purpose_id,
+            createdDate: tempAccount.created_at,
+            updatedDate: new Date(),
+            atm_card_no: tempAccount.atm_card,
+            expDate,
+            pin,
+        }, { transaction });
+
+        await TemporaryRegistration.destroy({ where: { id: tempAccount.id }, transaction });
+        await transaction.commit();
+
+        const accountPurpose = await AccountPurpose.findOne({ where: { id: newAccount.accountPurposeId } })
+
+        return sendResponse(res, 200, 'PIN success set, account created', true, {
             data: {
-                user_id: account.userId,
-                accountTypeId: account.accountTypeId,
-                accountTypeName: account.accountTypeName,
-                accountTypeCode: account.code,
-                account_no: account.no,
-                atm_card_no: account.atm_card_no,
-                account_purpose_id: account.accountPurposeId,
-                account_purpose: account.accountPurpose ? account.accountPurpose.type : null,
-                balance: account.balance,
-                pin: account.pin,
+                user_id: newAccount.userId,
+                accountTypeId: newAccount.accountTypeId,
+                accountTypeName: newAccount.accountTypeName,
+                account_no: newAccount.no,
+                atm_card_no: newAccount.atm_card_no,
+                account_purpose_id: newAccount.accountPurposeId,
+                account_purpose: accountPurpose.type,
+                balance: newAccount.balance
             }
         });
 

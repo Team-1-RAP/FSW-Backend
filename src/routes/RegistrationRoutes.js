@@ -1,42 +1,40 @@
 import express from 'express';
 import multer from 'multer';
-import { registrationAccount } from '../controllers/RegistrationCustomer/RegistrationAccount.js';
-import { verifyEmail } from '../controllers/RegistrationCustomer/VerifyEmail.js'
-import { accountType } from '../controllers/RegistrationCustomer/AccountType.js';
-import { personalData } from '../controllers/RegistrationCustomer/PersonalData.js';
-import { uploadImg } from '../controllers/RegistrationCustomer/UploadImage.js';
-import { createPin } from '../controllers/RegistrationCustomer/CreatePin.js';
+import { customerData } from '../controllers/Registration/CustRegist.js';
 import { multerErrorHandler } from '../middleware/MulterHandlers.js';
+import { initialRegist } from '../controllers/Registration/InitialRegist.js';
+import { createPin } from '../controllers/Registration/CreatePin.js';
+import { verifyEmail } from '../controllers/Registration/VerifyEmail.js';
 
 const router = express.Router();
 
 const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
-      const allowedTypes = /jpg|jpeg/;
-      const extname = allowedTypes.test(file.mimetype);
-      const mimetype = allowedTypes.test(file.originalname.split('.').pop().toLowerCase());
-      
-      if (extname && mimetype) {
-          cb(null, true);
-      } else {
-          cb(new Error('Format only .jpg and .jpeg'), false);
-      }
+    const allowedTypes = /jpg|jpeg/;
+    const extname = allowedTypes.test(file.mimetype);
+    const mimetype = allowedTypes.test(file.originalname.split('.').pop().toLowerCase());
+
+    if (extname && mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('Format only .jpg and .jpeg'), false);
+    }
   },
-  limits: { fileSize: 2 * 1024 * 1024 }
+  limits: { fileSize: 2 * 1024 * 1024 } // 2MB limit
 });
 
 /**
  * @swagger
  * tags:
- *   name: Registration Customer
+ *   name: Registration
  */
 
 /**
  * @swagger
- * /v1/registration/customer/profile:
+ * /v1/registration/customer/account:
  *   post:
- *     tags: [Registration Customer]
+ *     tags: [Registration]
  *     requestBody:
  *       required: true
  *       content:
@@ -47,16 +45,12 @@ const upload = multer({
  *               email:
  *                 type: string
  *                 format: email
- *                 description: Alamat email pengguna
  *               username:
  *                 type: string
- *                 description: Nama pengguna
  *               password:
  *                 type: string
- *                 description: Kata sandi pengguna
  *               confirmPassword:
  *                 type: string
- *                 description: Konfirmasi kata sandi
  *             example:
  *               email: "user@gmail.com"
  *               username: "user123"
@@ -89,7 +83,7 @@ const upload = multer({
  * @swagger
  * /v1/registration/customer/verifyEmail:
  *   post:
- *     tags: [Registration Customer]
+ *     tags: [Registration]
  *     requestBody:
  *       required: true
  *       content:
@@ -99,7 +93,7 @@ const upload = multer({
  *             properties:
  *               username:
  *                 type: string
- *                 example: ista12
+ *                 example: user123
  *               otp:
  *                 type: string
  *                 example: "123456"
@@ -124,99 +118,10 @@ const upload = multer({
 
 /**
  * @swagger
- * /v1/registration/customer/accountType:
+ * /v1/registration/customer/profile:
  *   post:
- *     tags: [Registration Customer]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 example: ista12
- *               accountTypeId:
- *                 type: integer
- *                 description: ID of the selected account type
- *                 example: 1
- *     responses:
- *       200:
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 code:
- *                   type: integer
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: Account type success selected
- *                 data:
- *                   type: object
- *                   properties:
- */
-
-/**
- * @swagger
- * /v1/registration/customer/personalData:
- *   post:
- *     tags: [Registration Customer]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 example: "user123"
- *               fullname:
- *                 type: string
- *                 example: "Jude Belingham"
- *               nik:
- *                 type: string
- *                 example: "1234567890123456"
- *               born_date:
- *                 type: string
- *                 format: date
- *                 example: "2001-07-03"
- *               address:
- *                 type: string
- *                 description: Alamat pengguna
- *                 example: "Jl. Jendral Sudirman No. 123"
- *               accountPurpose_id:
- *                 type: integer
- *                 description: ID tujuan akun
- *                 example: 1
-*     responses:
- *       200:
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 code:
- *                   type: integer
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: OK
- *                 data:
- *                   type: object
- *                   description: 
- */
-
-/**
- * @swagger
- * /v1/registration/customer/uploadImg:
- *   post:
- *     tags: [Registration Customer]
+ *     tags:
+ *       - Registration
  *     requestBody:
  *       required: true
  *       content:
@@ -226,56 +131,122 @@ const upload = multer({
  *             properties:
  *               username:
  *                 type: string
- *                 description: Username of the user
- *                 example: "user123"
+ *                 example: newuser123
+ *               accountTypeId:
+ *                 type: integer
+ *                 example: 1
+ *               fullname:
+ *                 type: string
+ *                 example: New User Bank
+ *               nik:
+ *                 type: string
+ *                 example: 3201010101010001
+ *               born_date:
+ *                 type: string
+ *                 format: date
+ *                 example: 2001-01-01
+ *               address:
+ *                 type: string
+ *                 example: "Jl. Panglima Sudirman, Surabaya"
+ *               accountPurpose_id:
+ *                 type: integer
+ *                 example: 1
  *               ktp_document:
  *                 type: string
  *                 format: binary
- *                 description: KTP image file (JPG/JPEG)
  *               photo_document:
  *                 type: string
  *                 format: binary
- *                 description: Profile photo (JPG/JPEG)
  *               signature_document:
  *                 type: string
  *                 format: binary
- *                 description: Signature image file (JPG/JPEG)
  *     responses:
  *       200:
- *         description: Files uploaded success
+ *         description: Success registration
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 code:
- *                   type: integer
- *                   example: 200
  *                 message:
  *                   type: string
  *                   example: Files uploaded success
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *                 data:
  *                   type: object
  *                   properties:
- *                     ktp_url:
- *                       type: string
- *                       format: uri
- *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/ktp/ktp_image.jpg"
- *                     photo_url:
- *                       type: string
- *                       format: uri
- *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/photos/profil_image.jpg"
- *                     signature_url:
- *                       type: string
- *                       format: uri
- *                       example: "https://res.cloudinary.com/demo/image/upload/v1234567890/signature/signature_image.jpg"
+ *                     data_customer:
+ *                       type: object
+ *                       properties:
+ *                         email:
+ *                           type: string
+ *                         username:
+ *                           type: string
+ *                         fullname:
+ *                           type: string
+ *                         nik:
+ *                           type: string
+ *                         born_date:
+ *                           type: string
+ *                           format: date
+ *                         address:
+ *                           type: string
+ *                     data_account:
+ *                       type: object
+ *                       properties:
+ *                         account_no:
+ *                           type: string
+ *                         atm_card_no:
+ *                           type: string
+ *                         accountTypeId:
+ *                           type: integer
+ *                         accountTypeCode:
+ *                           type: string
+ *                         accountTypeName:
+ *                           type: string
+ *                         account_purpose_id:
+ *                           type: integer
+ *                         account_purpose:
+ *                           type: string
+ *                     document:
+ *                       type: object
+ *                       properties:
+ *                         ktp_url:
+ *                           type: string
+ *                         photo_url:
+ *                           type: string
+ *                         signature_url:
+ *                           type: string
+ *                     registration:
+ *                       type: object
+ *                       properties:
+ *                         otp_code:
+ *                           type: string
+ *                         otp_verified:
+ *                           type: boolean
+ *                         otp_expired_date:
+ *                           type: string
+ *                           format: date-time
+ *                         created_at:
+ *                           type: string
+ *                           format: date-time
+ *                         updated_at:
+ *                           type: string
+ *                           format: date-time
+ *                         accessToken:
+ *                           type: string
+ *                         token_expDate:
+ *                           type: string
+ *                           format: date-time
  */
 
 /**
  * @swagger
  * /v1/registration/customer/createPin/{token}:
  *   post:
- *     tags: [Registration Customer]
+ *     tags: [Registration]
  *     summary: 
  *     parameters:
  *       - in: path
@@ -315,16 +286,13 @@ const upload = multer({
  *                   description: 
  */
 
-
-router.post('/v1/registration/customer/profile', registrationAccount);
+router.post('/v1/registration/customer/account', initialRegist);
 router.post('/v1/registration/customer/verifyEmail', verifyEmail);
-router.post('/v1/registration/customer/accountType', accountType);
-router.post('/v1/registration/customer/personalData', personalData);
-router.post('/v1/registration/customer/uploadImg', upload.fields([
-    { name: 'ktp_document', maxCount: 1 },
-    { name: 'photo_document', maxCount: 1 },
-    { name: 'signature_document', maxCount: 1 }
-  ]), multerErrorHandler, uploadImg)
+router.post('/v1/registration/customer/profile', upload.fields([
+  { name: 'ktp_document', maxCount: 1 },
+  { name: 'photo_document', maxCount: 1 },
+  { name: 'signature_document', maxCount: 1 }
+]), multerErrorHandler, customerData);
 router.post('/v1/registration/customer/createPin/:token', createPin);
 
 export default router;

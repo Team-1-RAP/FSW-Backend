@@ -20,8 +20,15 @@ export const createPinToken = (userId, account_no) => {
     return jwt.sign({ userId, account_no }, jwtSecret, { expiresIn: '24h' });
 };
 
-export const createPinTokenRegister = (email, account_no) => {
-    return jwt.sign({ email, account_no }, jwtSecret, { expiresIn: '24h' });
+export const createPinTokenRegister = (email, account_no, username) => {
+    const payload = {
+        email,
+        account_no,
+        username
+    };
+
+    console.log("Token:", payload)
+    return jwt.sign(payload, jwtSecret, { expiresIn: '24h' });
 };
 
 const createTransporter = async () => {
@@ -160,13 +167,13 @@ export const sendEmailConfirmation = async (email, name) => {
     }
 };
 
-export const sendCreatePin = async (email, account_no, atm_card_no, name) => {
+export const sendCreatePin = async (email, account_no, atm_card_no, username, name) => {
     try {
         const transporter = await createTransporter();
-        
-        const LINK_PINREGIS = `https://storied-paletas-e17bc9.netlify.app/register/new-pin/`;
 
-        const token = createPinTokenRegister(email, account_no);
+        const LINK_PINREGIS = `https://fsw-frontend-staging.up.railway.app/register/new-pin/`;
+
+        const token = createPinTokenRegister(email, account_no, username);
         console.log('Token:', token);
 
         const htmlContent = `
@@ -215,7 +222,7 @@ export const sendCreatePin = async (email, account_no, atm_card_no, name) => {
 export const sendCreatePinTes = async (email, account_no, atm_card_no, name, userId) => {
     try {
         const transporter = await createTransporter();
-        const LINK_NEWPIN = 'https://storied-paletas-e17bc9.netlify.app/new-pin/'
+        const LINK_NEWPIN = 'https://fsw-frontend-staging.up.railway.app/new-account/new-pin/'
 
         const token = createPinToken(userId, account_no);
         console.log('Token:', token);

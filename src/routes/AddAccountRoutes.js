@@ -13,7 +13,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/account/new/account:
+ * /v1/account/new/accountType:
  *   post:
  *     tags: [Account]
  *     requestBody:
@@ -65,6 +65,8 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
+ * 
+ *     summary: non auth
  *     requestBody:
  *       required: true
  *       content:
@@ -97,7 +99,7 @@ const router = express.Router();
  *                   example: true
  */
 
-router.post('/v1/account/new/account', verifyToken, addAccountType);
-router.post('/v1/account/new-pin/:token', verifyToken, createNewPin);
+router.post('/v1/account/new/accountType', verifyToken, addAccountType);
+router.post('/v1/account/new-pin/:token', createNewPin);
 
 export default router;

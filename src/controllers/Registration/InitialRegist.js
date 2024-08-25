@@ -32,8 +32,7 @@ const processRegistration = async (existingTempRegist, data, res) => {
             email,
             password: hashedPassword,
             otp_code: otp,
-            otp_expired_date: otpExpiry,
-            step: 1,  
+            otp_expired_date: otpExpiry,  
             updated_at: new Date(),
         });
         await sendOTPEmail(email, otp, username);
@@ -49,7 +48,6 @@ const processRegistration = async (existingTempRegist, data, res) => {
                 otp_code: existingTempRegist.otp_code,
                 otp_verified: existingTempRegist.otp_verified,
                 otp_expired_date: otpExpiredFormatted,
-                step: existingTempRegist.step,
                 created_at: existingTempRegist.created_at,
                 updated_at: existingTempRegist.updated_at,
             },
@@ -61,7 +59,6 @@ const processRegistration = async (existingTempRegist, data, res) => {
             password: hashedPassword,
             otp_code: otp,
             otp_expired_date: otpExpiry,
-            step: 1,  
             created_at: new Date(),
             updated_at: new Date(),
         });
@@ -78,7 +75,6 @@ const processRegistration = async (existingTempRegist, data, res) => {
                 otp_code: newRegistration.otp_code,
                 otp_verified: newRegistration.otp_verified,
                 otp_expired_date: otpExpiredFormatted,
-                step: newRegistration.step,
                 created_at: newRegistration.created_at,
                 updated_at: newRegistration.updated_at,
             },
@@ -86,7 +82,7 @@ const processRegistration = async (existingTempRegist, data, res) => {
     }
 };
 
-export const registrationAccount = async (req, res) => {
+export const initialRegist = async (req, res) => {
     const { email, username, password, confirmPassword } = req.body;
 
     try {

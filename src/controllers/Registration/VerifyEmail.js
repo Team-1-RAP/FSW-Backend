@@ -16,18 +16,13 @@ export const verifyEmail = async (req, res) => {
             return sendResponse(res, 404, 'Username not found', false, null);
         }
 
-        const { step, otp_code, otp_expired_date } = existingTempRegist;
-
-        if (step > 1) {
-            return sendResponse(res, 400, 'Email verification is already completed', false, null);
-        }
+        const { otp_code, otp_expired_date } = existingTempRegist;
 
         const isOtpValid = otp_code === otp && new Date(otp_expired_date) > new Date();
 
         if (isOtpValid) {
             await existingTempRegist.update({
                 otp_verified: true,
-                step: step + 1,
                 updated_at: new Date().toISOString(),
             });
 
@@ -42,7 +37,6 @@ export const verifyEmail = async (req, res) => {
                     otp_code: existingTempRegist.otp_code,
                     otp_verified: existingTempRegist.otp_verified,
                     otp_expired_date: otpExpiredFormatted,
-                    step: existingTempRegist.step,
                     created_at: existingTempRegist.created_at,
                     updated_at: existingTempRegist.updated_at,
                 },
