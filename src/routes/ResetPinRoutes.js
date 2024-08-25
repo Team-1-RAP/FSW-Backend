@@ -1,19 +1,27 @@
-import express from 'express';
-import { validateCard, validateBirthDate, validateEmail, verifyOtp, changePassword, validatePin } from "../controllers/ResetPasswordController.js";
+import express from "express";
+import { changePin } from "../controllers/ResetPinController.js";
+import { verifyToken } from "../middleware/VerifyToken.js";
+import {
+  validateCard,
+  validateBirthDate,
+  validateEmail,
+  verifyOtp,
+} from "../controllers/ResetPasswordController.js";
 
 const router = express.Router();
 
 /**
  * @swagger
  * tags:
- *   name: Reset Password
+ *   name: Reset Pin
+ *   description:
  */
 
 /**
  * @swagger
- * /v1/reset/password/validation/card:
+ * /v1/reset/pin/validation/card:
  *   post:
- *     tags: [Reset Password]
+ *     tags: [Reset Pin]
  *     requestBody:
  *       required: true
  *       content:
@@ -52,9 +60,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/reset/password/validation/birthDate:
+ * /v1/reset/pin/validation/birthDate:
  *   post:
- *     tags: [Reset Password]
+ *     tags: [Reset Pin]
  *     requestBody:
  *       required: true
  *       content:
@@ -74,7 +82,7 @@ const router = express.Router();
  *               born_date: '2002-12-29'
  *     responses:
  *       200:
- *         description: Birth date validation successful
+ *         description: Birth date validation success
  *         content:
  *           application/json:
  *             schema:
@@ -90,9 +98,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/reset/password/validation/email:
+ * /v1/reset/pin/validation/email:
  *   post:
- *     tags: [Reset Password]
+ *     tags: [Reset Pin]
  *     requestBody:
  *       required: true
  *       content:
@@ -112,7 +120,7 @@ const router = express.Router();
  *               email: 'user@gmail.com'
  *     responses:
  *       200:
- *         description: Email validation successful
+ *         description: Email validation success
  *         content:
  *           application/json:
  *             schema:
@@ -128,9 +136,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/reset/password/validation/otpVerify:
+ * /v1/reset/pin/validation/otpVerify:
  *   post:
- *     tags: [Reset Password]
+ *     tags: [Reset Pin]
  *     requestBody:
  *       required: true
  *       content:
@@ -149,7 +157,7 @@ const router = express.Router();
  *               otp: '123456'
  *     responses:
  *       200:
- *         description: OTP verification successful
+ *         description: OTP verification success
  *         content:
  *           application/json:
  *             schema:
@@ -165,9 +173,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /v1/reset/password/validation/changePassword:
+ * /v1/reset/pin/validation/changePin:
  *   post:
- *     tags: [Reset Password]
+ *     tags: [Reset Pin]
  *     requestBody:
  *       required: true
  *       content:
@@ -177,54 +185,17 @@ const router = express.Router();
  *             properties:
  *               atm_card_no:
  *                 type: string
- *                 description: The card number to be validated
- *               password:
- *                 type: string
- *                 description: The new password for the user
- *               confirmPassword:
- *                 type: string
- *                 description: Confirmation of the new password
- *             example:
- *               atm_card_no: '123456789'
- *               password: 'password123'
- *               confirmPassword: 'password123'
- *     responses:
- *       200:
- *         description: Password change successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 code:
- *                   type: integer
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- */
-
-/**
- * @swagger
- * /v1/reset/password/validation/pin:
- *   post:
- *     tags: [Reset Password]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               atm_card_no:
- *                 type: string
- *                 description: The card number to be validated
+ *                 description: The account number of the user
  *               pin:
  *                 type: string
- *                 description: The PIN of the user
+ *                 description: The new PIN for the user
+ *               confirmPin:
+ *                 type: string
+ *                 description: Confirmation of the new PIN
  *             example:
  *               atm_card_no: '123456789'
- *               pin: '123456'
+ *               pin: '123654'
+ *               confirmPin: '123654'
  *     responses:
  *       200:
  *         description: OK
@@ -241,11 +212,9 @@ const router = express.Router();
  *                   type: object
  */
 
-router.post('/v1/reset/password/validation/card', validateCard);
-router.post('/v1/reset/password/validation/birthDate', validateBirthDate);
-router.post('/v1/reset/password/validation/email', validateEmail);
-router.post('/v1/reset/password/validation/otpVerify', verifyOtp);
-router.post('/v1/reset/password/validation/changePassword', changePassword);
-router.post('/v1/reset/password/validation/pin', validatePin);
-
+router.post('/v1/reset/pin/validation/card', verifyToken, validateCard);
+router.post('/v1/reset/pin/validation/birthDate', verifyToken, validateBirthDate);
+router.post('/v1/reset/pin/validation/email', verifyToken, validateEmail);
+router.post('/v1/reset/pin/validation/otpVerify', verifyToken, verifyOtp);
+router.post('/v1/reset/pin/validation/changePin', verifyToken, changePin);
 export default router;

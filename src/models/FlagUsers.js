@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/config.js';
-import Customer from './customer.js';
+import Customer from './Customers.js';
 
 const FlagUser = sequelize.define(
   'flag_user',

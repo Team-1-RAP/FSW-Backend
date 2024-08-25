@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
-import Customer from '../models/customer.js';
-import FlagUser from '../models/flagUser.js';
-import Account from '../models/account.js';
+import Customer from '../models/Customers.js';
+import FlagUser from '../models/FlagUsers.js';
+import Account from '../models/Accounts.js';
 import { formatToJakartaTime } from "../utils/dateUtils.js";
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { generateOTP } from "../utils/generateOtpUtils.js";
+import { validatePassword } from "../utils/validationUtils.js";
 
 export const currentPassword = async (req, res) => {
     const { current_password } = req.body;
@@ -296,23 +297,17 @@ export const verifyOtp = async (req, res) => {
 export const changePassword = async (req, res) => {
     const { password, confirmPassword } = req.body;
 
-    try {
-        if (!password || !confirmPassword){
-            return res.status(400).json({ 
+    const passwordValidation = validatePassword(password, confirmPassword);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({
                 code: 400,
-                message: 'Password and confirmation password cannot be empty',
-                data: null 
-            });
-        }
-        
-        if (password !== confirmPassword) {
-            return res.status(400).json({ 
-                code: 400,
-                message: 'Passwords do not match',
-                data: null 
+                message: passwordValidation.message,
+                status: false,
+                data: null,
             });
         }
 
+    try {
         const account = await Account.findOne({ where: { userId: req.user.userId } });
 
         if (!account) {

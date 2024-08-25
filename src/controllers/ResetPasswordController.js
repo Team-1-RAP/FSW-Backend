@@ -1,11 +1,12 @@
 import bcrypt from 'bcrypt';
-import Account from "../models/account.js";
-import FlagUser from '../models/flagUser.js';
-import Customer from '../models/customer.js';
+import Account from '../models/Accounts.js';
+import FlagUser from '../models/FlagUsers.js';
+import Customer from '../models/Customers.js';
 import { Op, Sequelize } from 'sequelize';
 import { sendOTPEmail } from "../utils/emailUtils.js";
 import { formatToJakartaTime } from "../utils/dateUtils.js";
 import { generateOTP } from "../utils/generateOtpUtils.js";
+import { validatePassword } from "../utils/validationUtils.js";
 
 export const validateCard = async (req, res) => {
     const { atm_card_no, expMonth, expYear } = req.body;
@@ -55,7 +56,7 @@ export const validateCard = async (req, res) => {
                 data: {
                     atm_card_no: account.atm_card_no,
                     account_no: account.no,
-                    account_type: account.accountType,
+                    account_type: account.accountTypeName,
                     balance: account.balance,
                     exp_date: account.expDate,
                     flag_user: {
@@ -155,7 +156,7 @@ export const validateBirthDate = async (req, res) => {
                     atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
-                    account_type: account.accountType,
+                    account_type: account.accountTypeName,
                     balance: account.balance,
                     customer_data: {
                         id: customer.id,
@@ -264,7 +265,7 @@ export const validateEmail = async (req, res) => {
                     atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
-                    account_type: account.accountType,
+                    account_type: account.accountTypeName,
                     balance: account.balance,
                     customer_data: {
                         id: customer.id,
@@ -362,7 +363,7 @@ export const verifyOtp = async (req, res) => {
                     atm_card_no: account.atm_card_no,
                     account_no: account.no,
                     customer_id: customer.id,
-                    account_type: account.accountType,
+                    account_type: account.accountTypeName,
                     balance: account.balance,
                     customer_data: {
                         id: customer.id,
@@ -407,13 +408,15 @@ export const verifyOtp = async (req, res) => {
 export const changePassword = async (req, res) => {
     const { atm_card_no, password, confirmPassword } = req.body;
 
-    if (password !== confirmPassword) {
-        return res.status(400).json({ 
-            code: 400,
-            message: 'Passwords does not match',
-            data: null 
-        });
-    }
+    const passwordValidation = validatePassword(password, confirmPassword);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({
+                code: 400,
+                message: passwordValidation.message,
+                status: false,
+                data: null,
+            });
+        }
 
     try {
         const account = await Account.findOne({ where: { atm_card_no: atm_card_no } });
@@ -461,7 +464,7 @@ export const changePassword = async (req, res) => {
                 atm_card_no: account.atm_card_no,
                 account_no: account.no,
                 customer_id: customer.id,
-                account_type: account.accountType,
+                account_type: account.accountTypeName,
                 balance: account.balance,
                 customer_data: {
                     id: customer.id,
@@ -576,7 +579,7 @@ export const validatePin = async (req, res) => {
                 account_no: account.no,
                 pin: account.pin,
                 customer_id: customer.id,
-                account_type: account.accountType,
+                account_type: account.accountTypeName,
                 balance: account.balance,
                 customer_data: {
                     id: customer.id,
