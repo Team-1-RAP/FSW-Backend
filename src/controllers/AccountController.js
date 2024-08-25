@@ -1,33 +1,19 @@
 import AccountTypes from "../models/AccountTypes.js";
 import AccountPurpose from "../models/AccountPurpose.js";
+import { sendResponse, sendErrResponse } from '../helpers/responseHelper.js';
 
 export const getAccountType = async (req, res) => {
     try {
         const accountTypes = await AccountTypes.findAll();
 
-        if (accountTypes.length > 0) {
-            return res.status(200).json({
-                code: 200,
-                message: 'Get all account types success',
-                status: true,
-                data: accountTypes,
-            });
-        } else {
-            return res.status(404).json({
-                code: 404,
-                message: 'No account types found',
-                status: false,
-                data: null,
-            });
-        }
+        if (!accountTypes.length) {
+            return sendResponse(res, 404, 'No account types found', false, null);
+        } 
+
+        return sendResponse(res, 200, 'Get all account types success', true, accountTypes)
     } catch (error) {
         console.error('Error retrieving account types:', error);
-        return res.status(500).json({
-            code: 500,
-            message: 'Internal server error',
-            error: error.message || 'An unknown error occurred',
-            data: null,
-        });
+        return sendErrResponse(res, 500, 'Internal Server Error', false, { error: error.message || 'An unknown error occurred' });
     }
 };
 
@@ -35,28 +21,13 @@ export const getAccountPurposes = async (req, res) => {
     try {
         const accountPurposeData = await AccountPurpose.findAll();
 
-        if (accountPurposeData.length > 0) {
-            return res.status(200).json({
-                code: 200,
-                message: 'Get all account purposes success',
-                status: true,
-                data: accountPurposeData,
-            });
-        } else {
-            return res.status(404).json({
-                code: 404,
-                message: 'No account purposes found',
-                status: false,
-                data: null,
-            });
-        }
+        if (!accountPurposeData.length) {
+            return sendResponse(res, 404, 'No account purposes found', false, null);
+        } 
+
+        return sendResponse(res, 200, 'Get all account purposes success', true, accountPurposeData)
     } catch (error) {
         console.error('Error retrieving account types:', error);
-        return res.status(500).json({
-            code: 500,
-            message: 'Internal server error',
-            error: error.message || 'An unknown error occurred',
-            data: null,
-        });
+        return sendErrResponse(res, 500, 'Internal Server Error', false, { error: error.message || 'An unknown error occurred' });
     }
 };
