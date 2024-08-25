@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { Op } from 'sequelize';
 import TemporaryRegistration from '../../models/TemporaryRegistration.js';
 import Customer from "../../models/Customers.js";
 import { sendResponse, sendErrResponse } from '../../helpers/responseHelper.js';
@@ -91,11 +92,16 @@ export const initialRegist = async (req, res) => {
             return sendResponse(res, 400, validationError, false, null);
         }
 
-        const existingCustomer = await Customer.findOne({ where: { username } });
+        const existingCustomer = await Customer.findOne({ where: { [Op.or]: [{ username }, { email }] } });
         const existingTempRegist = await TemporaryRegistration.findOne({ where: { username } });
 
         if (existingCustomer) {
-            return sendResponse(res, 400, 'Username is already taken', false, null);
+            if (existingCustomer.username === username) {
+                return sendResponse(res, 400, 'Username is already taken', false, null);
+            }
+            if (existingCustomer.email === email) {
+                return sendResponse(res, 400, 'Email is already taken', false, null);
+            }
         }
 
         const salt = await bcrypt.genSalt(13);
