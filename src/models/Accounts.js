@@ -51,7 +51,8 @@ const Account = sequelize.define('account', {
     bankId: {
         type: DataTypes.BIGINT,
         allowNull: true,
-        field: 'bank_id'
+        field: 'bank_id',
+        defaultValue: 1
     },
     userId: {
         type: DataTypes.BIGINT,
