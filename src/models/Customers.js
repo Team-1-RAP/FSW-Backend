@@ -80,12 +80,6 @@ const Customer = sequelize.define('customer', {
         allowNull: true,
         field: 'password'
     },
-    phoneNumber: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: 'uk_rosd2guvs3i1agkplv5n8vu82',
-        field: 'phone_number'
-    },
     username: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -128,5 +122,6 @@ const Customer = sequelize.define('customer', {
 });
 
 Customer.belongsToMany(Role, {through: 'oauth_user_role', foreignKey: 'user_id'});
+Role.belongsToMany(Customer, { through: 'oauth_user_role', foreignKey: 'role_id' });
 
 export default Customer;

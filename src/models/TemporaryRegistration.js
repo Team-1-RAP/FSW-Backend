@@ -96,6 +96,14 @@ const TemporaryRegistration = sequelize.define('temporary_registration', {
         type: DataTypes.INTEGER,
         defaultValue: 1, 
         allowNull: false,
+    },
+    is_add_account: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 },{
     tableName: 'temporary_registrations',
