@@ -2,7 +2,7 @@
 > **A mobile and web-based banking application designed for all user, including visually impaired users. True to its name, SimpleBank is committed to providing inclusive banking solutions that empower everyone to manage their finances independently and with ease.**
 
 
-# Features on Backend Fullstack Web (JavaScript)
+## Features on Backend Fullstack Web (JavaScript)
 1. **Registration**: Open a new account for users who do not yet have an account with SimpleBank.
 2. **Add New Account**: Add New Account: Add a new account or ATM card for registered users, with options including BRONZE, GOLD, and PLATINUM account types.
 3. **Bank Transfer Validation**: Validate the destination account number for transfers within BCA.
@@ -20,7 +20,7 @@
 - **Cloudflare**: DNS management and security service that directs traffic and provides protection against threats.
 - **Nginx**: Reverse proxy server that forwards client requests to backend servers and manages traffic routing.
 - **Jest**: JavaScript testing framework.
-- **Google Auth Library – OAuth2**: Google Auth Library – OAuth2: Library for authentication and authorization using OAuth2, specifically for email delivery via Nodemailer.
+- **Google Auth Library – OAuth2**: Library for authentication and authorization using OAuth2, specifically for email delivery via Nodemailer.
 - **Swagger**: Tool for API documentation using Swagger/OpenAPI specifications.
 - **GitHub Actions**: CI/CD platform for automating build, test, and deployment workflows.
 
